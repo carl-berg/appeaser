@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // associated with an assembly.
 [assembly: AssemblyTitle("Appeaser")]
 [assembly: AssemblyProduct("Appeaser")]
-[assembly: AssemblyCopyright("Copyright © Carl Berg 2014")]
+[assembly: AssemblyCopyright("Copyright (c) 2014 Carl Berg")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
 // to COM components.  If you need to access a type in this assembly from 
