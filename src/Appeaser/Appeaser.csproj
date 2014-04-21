@@ -39,13 +39,6 @@
     <Compile Include="ICommandHandler.cs" />
     <Compile Include="IMediator.cs" />
     <Compile Include="IMediatorHandlerFactory.cs" />
-    <Compile Include="Injection\IMediatorCommandHandlerInjector.cs" />
-    <Compile Include="Injection\IMediatorCommandInjector.cs" />
-    <Compile Include="Injection\IMediatorInjectionContext.cs" />
-    <Compile Include="Injection\IMediatorInjector.cs" />
-    <Compile Include="Injection\IMediatorQueryInjection.cs" />
-    <Compile Include="Injection\MediatorCommandHandlerInjector.cs" />
-    <Compile Include="Injection\MediatorInjectionContext.cs" />
     <Compile Include="IQuery.cs" />
     <Compile Include="IQueryHandler.cs" />
     <Compile Include="Mediator.cs" />

@@ -1,9 +1,7 @@
 using System;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
 using Appeaser.Exceptions;
-using Appeaser.Injection;
 
 namespace Appeaser
 {
@@ -32,12 +30,6 @@ namespace Appeaser
                     throw new MediatorQueryException("No query handler of type {0} could be found", query.GetType());
                 }
 
-                var handlerContext = new MediatorInjectionContext(handler) { QueryType = queryType, HandlerType = handler.GetType() };
-                Inject<IMediatorCommandHandlerInjector>(handlerContext);
-
-                var queryContext = new MediatorInjectionContext(query) { QueryType = queryType, HandlerType = handler.GetType() };
-                Inject<IMediatorQueryInjection>(queryContext);
-                
                 return InvokeHandler<TResponse>(handler, query);
             }
             catch (Exception ex)
@@ -65,12 +57,6 @@ namespace Appeaser
                     throw new MediatorCommandException("No command handler of type {0} could be found", command.GetType());
                 }
 
-                var handlerContext = new MediatorInjectionContext(handler) { CommandType = commandType, HandlerType = handler.GetType() };
-                Inject<IMediatorCommandHandlerInjector>(handlerContext);
-
-                var queryContext = new MediatorInjectionContext(command) { CommandType = commandType, HandlerType = handler.GetType() };
-                Inject<IMediatorCommandInjector>(queryContext);
-
                 return InvokeHandler<TResult>(handler, command);
             }
             catch (Exception ex)
@@ -81,27 +67,6 @@ namespace Appeaser
                 }
 
                 throw new MediatorCommandException(ex, command.GetType());
-            }
-        }
-
-        [DebuggerStepThrough]
-        protected void Inject<TInjectionType>(IMediatorInjectionContext context) where TInjectionType : IMediatorInjector
-        {
-            foreach (var injector in HandlerFactory.GetInjectors<TInjectionType>())
-            {
-                injector.Inject(context);
-            }
-        }
-
-        [DebuggerStepThrough]
-        protected virtual void InjectMediator(object handler)
-        {
-            var mediatorProperties = handler.GetType()
-                                            .GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                                            .Where(x => x.PropertyType == typeof(IMediator));
-            foreach (var mediatorProperty in mediatorProperties)
-            {
-                mediatorProperty.SetValue(handler, this);
             }
         }
 
