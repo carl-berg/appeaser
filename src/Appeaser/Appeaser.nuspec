@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>Carl Berg</authors>
+    <owners>Carl Berg</owners>
+    <iconUrl>https://raw.githubusercontent.com/carl-berg/appeaser/master/res/icon_128.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Appeaser, an appeasing mediator.</description>
+    <copyright>Copyright 2014</copyright>
+    <tags>Appeaser</tags>
+    <releaseNotes>Initial release.</releaseNotes>   
+  </metadata>
+</package>
