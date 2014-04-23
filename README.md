@@ -1,5 +1,5 @@
-# Appeaser
-
+# ![Appeaser](https://raw.githubusercontent.com/carl-berg/appeaser/master/res/icon_256.png)
+----------
 A mediator implementation in C#, inspired by [a blog post series](http://lostechies.com/jimmybogard/2013/12/19/put-your-controllers-on-a-diet-posts-and-commands/) from Jimmy Bogard. The mediator pattern helps you keep a clean abstraction between your command and queries and where they are executed from. It also helps keeping dependances from bleeding through your abstractions as the handlers are separated from their commands and queries.
 
 ## Using the mediator
@@ -60,7 +60,7 @@ Executing a command:
 	}
 
 ## Dependency injection
-The appeaser library is ment to be used together with dependency injection. As I am not a big believer in adding a dependency resolver for each dependency injection library out there (but in the future i might implement built in dependency injection of some kind), you can easily handle it yourself by implementing the `IMediatorHandlerFactory` interface like this:
+The appeaser library is ment to be used together with dependency injection. As I am not a big believer in adding a dependency resolver for each dependency injection library out there (but in the future I might implement built in dependency injection of some kind), you can easily handle it yourself by implementing the `IMediatorHandlerFactory` interface like this:
 
     public class StructuremapMediatorHandlerFactory : IMediatorHandlerFactory
     {
@@ -74,11 +74,5 @@ The appeaser library is ment to be used together with dependency injection. As I
         public object GetHandler(Type handlerType)
         {
             return _container.TryGetInstance(handlerType);
-        }
-
-        public IEnumerable<TMediatorInjector> GetInjectors<TMediatorInjector>() where TMediatorInjector : IMediatorInjector
-        {
-            return _container.GetAllInstances<IMediatorInjector>()
-                             .OfType<TMediatorInjector>();
         }
     }
