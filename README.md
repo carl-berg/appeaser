@@ -1,5 +1,5 @@
 # ![Appeaser](https://raw.githubusercontent.com/carl-berg/appeaser/master/res/icon_256.png)
-----------
+
 A mediator implementation in C#, inspired by [a blog post series](http://lostechies.com/jimmybogard/2013/12/19/put-your-controllers-on-a-diet-posts-and-commands/) from Jimmy Bogard. The mediator pattern helps you keep a clean abstraction between your command and queries and where they are executed from. It also helps keeping dependances from bleeding through your abstractions as the handlers are separated from their commands and queries.
 
 ## Using the mediator
