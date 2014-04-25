@@ -56,9 +56,9 @@ Executing a command:
 	}
 
 ## Query Handler
-	public class SomethingQueryHandler 
-		: IQueryHandler<GetSomething, Something>
-		: IAsyncQueryHandler<GetSomethingAsync, Something>
+	public class SomethingQueryHandler :  
+		IQueryHandler<GetSomething, Something>,
+		IAsyncQueryHandler<GetSomethingAsync, Something>
 	{
 		public SomethingHandler( /* interesting dependencies here */)
 		{
@@ -77,9 +77,9 @@ Executing a command:
 	}
 
 ## Command Handler
-	public class SomethingCommandHandler 
-		: ICommandHandler<DoSomething, SomethingResult>
-		: IAsyncCommandHandler<DoSomethingAsync, SomethingResult>
+	public class SomethingCommandHandler :  
+		ICommandHandler<DoSomething, SomethingResult>,
+		IAsyncCommandHandler<DoSomethingAsync, SomethingResult>
 	{
 		public SomethingHandler(/* interesting dependencies here */)
 		{
