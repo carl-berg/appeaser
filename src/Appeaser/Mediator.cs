@@ -92,7 +92,7 @@ namespace Appeaser
         {
             try
             {
-                var handler = GetHandler<TResult>(typeof(ICommandHandler<,>), command);
+                var handler = GetHandler<TResult>(typeof(IAsyncCommandHandler<,>), command);
                 if (handler == null)
                 {
                     throw new MediatorCommandException("No command handler of type {0} could be found", command.GetType());
