@@ -1,5 +1,8 @@
 # Release notes
 
+## Version 1.1.0
+- New production release with async support
+
 ## Version 1.0.2-beta
 - Fixed bug in async command execution
 
