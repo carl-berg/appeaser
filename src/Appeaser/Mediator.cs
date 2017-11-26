@@ -17,7 +17,7 @@ namespace Appeaser
             Settings = settings ?? new MediatorSettings();
         }
 
-        //[DebuggerStepThrough]
+        [DebuggerStepThrough]
         public virtual TResponse Request<TResponse>(IQuery<TResponse> query)
         {
             try
