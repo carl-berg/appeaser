@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 using System.Reflection;
 using System.Threading.Tasks;
 using Appeaser.Exceptions;
@@ -17,7 +16,6 @@ namespace Appeaser
             Settings = settings ?? new MediatorSettings();
         }
 
-        [DebuggerStepThrough]
         public virtual TResponse Request<TResponse>(IQuery<TResponse> query)
         {
             try
@@ -41,7 +39,6 @@ namespace Appeaser
             }
         }
 
-        [DebuggerStepThrough]
         public virtual async Task<TResponse> Request<TResponse>(IAsyncQuery<TResponse> query)
         {
             try
@@ -65,7 +62,6 @@ namespace Appeaser
             }
         }
 
-        [DebuggerStepThrough]
         public virtual TResult Send<TResult>(ICommand<TResult> command)
         {
             try
@@ -89,7 +85,6 @@ namespace Appeaser
             }
         }
 
-        [DebuggerStepThrough]
         public virtual async Task<TResult> Send<TResult>(IAsyncCommand<TResult> command)
         {
             try
@@ -113,7 +108,6 @@ namespace Appeaser
             }
         }
 
-        [DebuggerStepThrough]
         protected virtual object GetHandler<TResponse>(Type handlerType, object parameter)
         {
             var requestType = typeof(TResponse);
@@ -122,7 +116,6 @@ namespace Appeaser
             return HandlerFactory.GetHandler(requestingHandlerType);
         }
 
-        [DebuggerStepThrough]
         protected virtual TReturn InvokeHandler<TReturn>(object handler, object parameter)
         {
             var method = handler.GetType().GetRuntimeMethod("Handle", new[] { parameter.GetType() });
@@ -136,7 +129,6 @@ namespace Appeaser
             }
         }
 
-        [DebuggerStepThrough]
         protected virtual async Task<TReturn> InvokeHandlerAsync<TReturn>(object handler, object parameter)
         {
             var method = handler.GetType().GetRuntimeMethod("Handle", new[] { parameter.GetType() });
