@@ -73,7 +73,7 @@ namespace Appeaser
         [DebuggerStepThrough]
         protected virtual TReturn InvokeHandler<TReturn>(object handler, object parameter)
         {
-            var method = handler.GetType().GetMethod("Handle", BindingFlags.Public | BindingFlags.Instance | BindingFlags.InvokeMethod, null, new[] { parameter.GetType() }, null);
+            var method = handler.GetType().GetRuntimeMethod("Handle", new[] { parameter.GetType() });
             return (TReturn)method.Invoke(handler, new[] { parameter });
         }
     }
