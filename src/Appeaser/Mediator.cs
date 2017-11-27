@@ -10,7 +10,9 @@ namespace Appeaser
         protected readonly IMediatorHandlerFactory HandlerFactory;
         protected readonly IMediatorSettings Settings;
 
-        public Mediator(IMediatorHandlerFactory handlerFactory, IMediatorSettings settings = null)
+        public Mediator(IMediatorHandlerFactory handlerFactory) : this(handlerFactory, new MediatorSettings()) { }
+
+        public Mediator(IMediatorHandlerFactory handlerFactory, IMediatorSettings settings)
         {
             HandlerFactory = handlerFactory;
             Settings = settings ?? new MediatorSettings();
