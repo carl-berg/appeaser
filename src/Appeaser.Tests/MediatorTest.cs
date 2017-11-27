@@ -1,10 +1,9 @@
 ﻿using Appeaser.Exceptions;
-using NUnit.Framework;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace Appeaser.Tests
 {
-    [TestFixture]
     public class MediatorTest
     {
         private TestHandlerFactory _handlerFactory;
@@ -15,39 +14,39 @@ namespace Appeaser.Tests
                 .AddHandler<TestFeature.Handler>();
         }
 
-        [Test]
+        [Fact]
         public void Can_Resolve_Query()
         {
             var mediator = new Mediator(_handlerFactory);
             var result = mediator.Request(new TestFeature.Query());
-            Assert.IsNotNull(result);
+            Assert.NotNull(result);
         }
 
-        [Test]
+        [Fact]
         public async Task Can_Resolve_Async_Query()
         {
             var mediator = new Mediator(_handlerFactory);
             var result = await mediator.Request(new TestFeature.AsyncQuery());
-            Assert.IsNotNull(result);
+            Assert.NotNull(result);
         }
 
-        [Test]
+        [Fact]
         public void Can_Resolve_Command()
         {
             var mediator = new Mediator(_handlerFactory);
             var result = mediator.Send(new TestFeature.Command());
-            Assert.IsNotNull(result);
+            Assert.NotNull(result);
         }
 
-        [Test]
+        [Fact]
         public async Task Can_Resolve_Async_Command()
         {
             var mediator = new Mediator(_handlerFactory);
             var result = await mediator.Send(new TestFeature.AsyncCommand());
-            Assert.IsNotNull(result);
+            Assert.NotNull(result);
         }
 
-        [Test]
+        [Fact]
         public void Calling_Unregistered_Handler_Throws_Exception()
         {
             var mediator = new Mediator(_handlerFactory);

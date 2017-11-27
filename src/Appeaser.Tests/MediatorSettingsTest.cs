@@ -1,10 +1,9 @@
 ﻿using Appeaser.Exceptions;
-using NUnit.Framework;
 using System;
+using Xunit;
 
 namespace Appeaser.Tests
 {
-    [TestFixture]
     public class MediatorSettingsTest
     {
         private TestHandlerFactory _handlerFactory;
@@ -15,14 +14,14 @@ namespace Appeaser.Tests
                 .AddHandler<TestFeature.Handler>();
         }
 
-        [Test]
+        [Fact]
         public void Test_Exception_Is_Wrapped_By_Default()
         {
             var mediator = new Mediator(_handlerFactory);
             Assert.Throws<MediatorQueryException>(() => mediator.Request(new TestFeature.Query()));
         }
 
-        [Test]
+        [Fact]
         public void Test_Exception_Wrapping_Can_Be_Disabled()
         {
             var mediator = new Mediator(_handlerFactory, new TestMediatorSettings { WrapExceptions = false });
