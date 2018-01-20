@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 using System.Reflection;
 using System.Threading.Tasks;
 using Appeaser.Exceptions;
@@ -9,13 +8,16 @@ namespace Appeaser
     public class Mediator : IMediator
     {
         protected readonly IMediatorHandlerFactory HandlerFactory;
+        protected readonly IMediatorSettings Settings;
 
-        public Mediator(IMediatorHandlerFactory handlerFactory)
+        public Mediator(IMediatorHandlerFactory handlerFactory) : this(handlerFactory, new MediatorSettings()) { }
+
+        public Mediator(IMediatorHandlerFactory handlerFactory, IMediatorSettings settings)
         {
             HandlerFactory = handlerFactory;
+            Settings = settings ?? new MediatorSettings();
         }
 
-        [DebuggerStepThrough]
         public virtual TResponse Request<TResponse>(IQuery<TResponse> query)
         {
             try
@@ -30,7 +32,7 @@ namespace Appeaser
             }
             catch (Exception ex)
             {
-                if (ex is MediatorQueryException)
+                if (ex is MediatorQueryException || !Settings.WrapExceptions)
                 {
                     throw;
                 }
@@ -39,7 +41,6 @@ namespace Appeaser
             }
         }
 
-        [DebuggerStepThrough]
         public virtual async Task<TResponse> Request<TResponse>(IAsyncQuery<TResponse> query)
         {
             try
@@ -54,7 +55,7 @@ namespace Appeaser
             }
             catch (Exception ex)
             {
-                if (ex is MediatorQueryException)
+                if (ex is MediatorQueryException || !Settings.WrapExceptions)
                 {
                     throw;
                 }
@@ -63,7 +64,6 @@ namespace Appeaser
             }
         }
 
-        [DebuggerStepThrough]
         public virtual TResult Send<TResult>(ICommand<TResult> command)
         {
             try
@@ -78,7 +78,7 @@ namespace Appeaser
             }
             catch (Exception ex)
             {
-                if (ex is MediatorCommandException)
+                if (ex is MediatorCommandException || !Settings.WrapExceptions)
                 {
                     throw;
                 }
@@ -87,7 +87,6 @@ namespace Appeaser
             }
         }
 
-        [DebuggerStepThrough]
         public virtual async Task<TResult> Send<TResult>(IAsyncCommand<TResult> command)
         {
             try
@@ -102,7 +101,7 @@ namespace Appeaser
             }
             catch (Exception ex)
             {
-                if (ex is MediatorCommandException)
+                if (ex is MediatorCommandException || !Settings.WrapExceptions)
                 {
                     throw;
                 }
@@ -111,7 +110,6 @@ namespace Appeaser
             }
         }
 
-        [DebuggerStepThrough]
         protected virtual object GetHandler<TResponse>(Type handlerType, object parameter)
         {
             var requestType = typeof(TResponse);
@@ -120,18 +118,31 @@ namespace Appeaser
             return HandlerFactory.GetHandler(requestingHandlerType);
         }
 
-        [DebuggerStepThrough]
         protected virtual TReturn InvokeHandler<TReturn>(object handler, object parameter)
         {
-            var method = handler.GetType().GetMethod("Handle", BindingFlags.Public | BindingFlags.Instance | BindingFlags.InvokeMethod, null, new[] { parameter.GetType() }, null);
-            return (TReturn)method.Invoke(handler, new[] { parameter });
+
+            var method = handler.GetType().GetRuntimeMethod("Handle", new[] { parameter.GetType() });
+            try
+            { 
+                return (TReturn)method.Invoke(handler, new[] { parameter });
+            }
+            catch(TargetInvocationException ex)
+            {
+                throw ex.InnerException;
+            }
         }
 
-        [DebuggerStepThrough]
         protected virtual async Task<TReturn> InvokeHandlerAsync<TReturn>(object handler, object parameter)
         {
-            var method = handler.GetType().GetMethod("Handle", BindingFlags.Public | BindingFlags.Instance | BindingFlags.InvokeMethod, null, new[] { parameter.GetType() }, null);
-            return await(Task<TReturn>)method.Invoke(handler, new[] { parameter });
+            var method = handler.GetType().GetRuntimeMethod("Handle", new[] { parameter.GetType() });
+            try
+            { 
+                return await(Task<TReturn>)method.Invoke(handler, new[] { parameter });
+            }
+            catch (TargetInvocationException ex)
+            {
+                throw ex.InnerException;
+            }
         }
     }
 }
