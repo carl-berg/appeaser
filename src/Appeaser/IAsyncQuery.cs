@@ -1,4 +1,4 @@
 namespace Appeaser
 {
-    public interface IAsyncQuery<TReturn> { }
+    public interface IAsyncQuery<TReturn> : IAsyncRequest<TReturn> { }
 }

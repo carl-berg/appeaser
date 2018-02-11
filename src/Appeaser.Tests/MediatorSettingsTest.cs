@@ -1,5 +1,5 @@
-﻿using Appeaser.Exceptions;
-using System;
+﻿using System;
+using Appeaser.Exceptions;
 using Xunit;
 
 namespace Appeaser.Tests

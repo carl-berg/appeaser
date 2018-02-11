@@ -1,4 +1,4 @@
 namespace Appeaser
 {
-    public interface ICommand<TResult> { }
+    public interface ICommand<TResult> : IRequest<TResult> { }
 }
