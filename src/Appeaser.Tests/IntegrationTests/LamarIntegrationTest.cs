@@ -15,6 +15,7 @@ namespace Appeaser.Tests
             {
                 configure.ForSingletonOf<IMediatorHandlerFactory>().Use<LamarMediatorHandlerFactory>();
                 configure.For<IMediator>().Use<Mediator>();
+                configure.For<ISimpleMediator>().Use<Mediator>();
                 configure.Scan(s =>
                 {
                     s.AssemblyContainingType<LamarIntegrationTest>();
@@ -28,6 +29,14 @@ namespace Appeaser.Tests
         public void Can_Resolve_Mediator()
         {
             var mediator = _container.GetInstance<IMediator>();
+            Assert.NotNull(mediator);
+            Assert.IsType<Mediator>(mediator);
+        }
+
+        [Fact]
+        public void Can_Resolve_Simple_Mediator()
+        {
+            var mediator = _container.GetInstance<ISimpleMediator>();
             Assert.NotNull(mediator);
             Assert.IsType<Mediator>(mediator);
         }

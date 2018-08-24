@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard1.0;net45</TargetFrameworks>
     <Copyright>Copyright (c) 2017 Carl Berg</Copyright>
-    <Version>2.0.0-rc4</Version>
+    <Version>2.1.0</Version>
     <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
   </PropertyGroup>
 <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.0' ">

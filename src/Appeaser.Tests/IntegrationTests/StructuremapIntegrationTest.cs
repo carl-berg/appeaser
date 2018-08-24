@@ -16,6 +16,7 @@ namespace Appeaser.Tests
                 configure.For<IMediatorHandlerFactory>().Use<StructuremapMediatorHandlerFactory>().Singleton();
                 configure.For<IMediatorSettings>().Use<MediatorSettings>();
                 configure.For<IMediator>().Use<Mediator>();
+                configure.For<ISimpleMediator>().Use<Mediator>();
                 configure.Scan(s =>
                 {
                     s.AssemblyContainingType<StructuremapIntegrationTest>();
@@ -27,6 +28,14 @@ namespace Appeaser.Tests
 
         [Fact]
         public void Can_Resolve_Mediator()
+        {
+            var mediator = _container.GetInstance<IMediator>();
+            Assert.NotNull(mediator);
+            Assert.IsType<Mediator>(mediator);
+        }
+
+        [Fact]
+        public void Can_Resolve_Simple_Mediator()
         {
             var mediator = _container.GetInstance<IMediator>();
             Assert.NotNull(mediator);

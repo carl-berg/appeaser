@@ -97,6 +97,25 @@ Executing a command:
 		}
 	}
 
+## Simple Mediator
+The mediator also implements a simpler interface `ISimpleMediator` in case you find the Command/Query names to obtuse and simply want to use a single request method. The simple mediator can be used like this:
+
+    var something = await mediator.Request(new Feature.Request());
+
+with something like this as the implementation:
+
+    public class Feture
+    {
+        public class Request : IAsyncRequest<Response> { }
+
+	    public class Handler : IAsyncRequestHandler<Request, Response>
+	    {
+            public Response Handle(Request request) => new Response();
+	    }
+
+	    public class Response { }
+    }
+
 ## Dependency injection
 The appeaser library is ment to be used together with dependency injection. As I am not a big believer in adding a dependency resolver for each dependency injection library out there (but in the future I might implement built in dependency injection of some kind), you can easily handle it yourself by implementing the `IMediatorHandlerFactory` interface like this:
 
@@ -127,10 +146,8 @@ The appeaser library is ment to be used together with dependency injection. As I
             Scan(s =>
             {
                 s.TheCallingAssembly();
-                s.ConnectImplementationsToTypesClosing(typeof(IQueryHandler<,>));
-                s.ConnectImplementationsToTypesClosing(typeof(IAsyncQueryHandler<,>));
-                s.ConnectImplementationsToTypesClosing(typeof(ICommandHandler<,>));
-                s.ConnectImplementationsToTypesClosing(typeof(IAsyncCommandHandler<,>));
+                s.ConnectImplementationsToTypesClosing(typeof(IRequestHandler<,>));
+                s.ConnectImplementationsToTypesClosing(typeof(IAsyncRequestHandler<,>));
             });			
 	    }
 	}
@@ -146,10 +163,8 @@ The appeaser library is ment to be used together with dependency injection. As I
             Scan(s =>
             {
                 s.TheCallingAssembly();
-                s.ConnectImplementationsToTypesClosing(typeof(IQueryHandler<,>));
-                s.ConnectImplementationsToTypesClosing(typeof(IAsyncQueryHandler<,>));
-                s.ConnectImplementationsToTypesClosing(typeof(ICommandHandler<,>));
-                s.ConnectImplementationsToTypesClosing(typeof(IAsyncCommandHandler<,>));
+                s.ConnectImplementationsToTypesClosing(typeof(IRequestHandler<,>));
+                s.ConnectImplementationsToTypesClosing(typeof(IAsyncRequestHandler<,>));
             });			
         }
 	}
