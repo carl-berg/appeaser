@@ -5,7 +5,7 @@ using Xunit;
 
 namespace Appeaser.Tests
 {
-    public class LamarIntegrationTest
+    public class LamarIntegrationTest : TestBase
     {
         private Container _container;
 
@@ -18,10 +18,8 @@ namespace Appeaser.Tests
                 configure.Scan(s =>
                 {
                     s.AssemblyContainingType<LamarIntegrationTest>();
-                    s.ConnectImplementationsToTypesClosing(typeof(IQueryHandler<,>));
-                    s.ConnectImplementationsToTypesClosing(typeof(IAsyncQueryHandler<,>));
-                    s.ConnectImplementationsToTypesClosing(typeof(ICommandHandler<,>));
-                    s.ConnectImplementationsToTypesClosing(typeof(IAsyncCommandHandler<,>));
+                    s.ConnectImplementationsToTypesClosing(typeof(IRequestHandler<,>));
+                    s.ConnectImplementationsToTypesClosing(typeof(IAsyncRequestHandler<,>));
                 });
             });
         }
@@ -35,18 +33,18 @@ namespace Appeaser.Tests
         }
 
         [Fact]
-        public void Can_Resolve_Request_Handlers()
+        public void Can_Resolve_Query_Handlers()
         {
             var mediator = _container.GetInstance<IMediator>();
-            var result = mediator.Request(new TestFeatureOne.Request());
+            var result = mediator.Request(new QueryFeature.Query());
             Assert.Equal(UnitType.Default, result);
         }
 
         [Fact]
-        public async Task Can_Resolve_Async_Request_Handlers()
+        public async Task Can_Resolve_Async_Query_Handlers()
         {
             var mediator = _container.GetInstance<IMediator>();
-            var result = await mediator.Request(new TestFeatureOne.AsyncRequest());
+            var result = await mediator.Request(new QueryFeature.AsyncQuery());
             Assert.Equal(UnitType.Default, result);
         }
 
@@ -54,7 +52,7 @@ namespace Appeaser.Tests
         public void Can_Resolve_Command_Handlers()
         {
             var mediator = _container.GetInstance<IMediator>();
-            var result = mediator.Send(new TestFeatureTwo.Command());
+            var result = mediator.Send(new CommandFeature.Command());
             Assert.Equal(UnitType.Default, result);
         }
 
@@ -62,7 +60,7 @@ namespace Appeaser.Tests
         public async Task Can_Resolve_Async_Command_Handlers()
         {
             var mediator = _container.GetInstance<IMediator>();
-            var result = await mediator.Send(new TestFeatureTwo.AsyncCommand());
+            var result = await mediator.Send(new CommandFeature.AsyncCommand());
             Assert.Equal(UnitType.Default, result);
         }
 
@@ -78,32 +76,6 @@ namespace Appeaser.Tests
             public object GetHandler(Type handlerType)
             {
                 return _container.TryGetInstance(handlerType);
-            }
-        }
-
-        public class TestFeatureOne
-        {
-            public class Request : IQuery<UnitType> { }
-            public class AsyncRequest : IAsyncQuery<UnitType> { }
-
-            public class Handler : IQueryHandler<Request, UnitType>, IAsyncQueryHandler<AsyncRequest, UnitType>
-            {
-                public UnitType Handle(Request request) => UnitType.Default;
-
-                public async Task<UnitType> Handle(AsyncRequest request) => await Task.FromResult(UnitType.Default);
-            }
-        }
-
-        public class TestFeatureTwo
-        {
-            public class Command : ICommand<UnitType> { }
-            public class AsyncCommand : IAsyncCommand<UnitType> { }
-
-            public class Handler : ICommandHandler<Command, UnitType>, IAsyncCommandHandler<AsyncCommand, UnitType>
-            {
-                public UnitType Handle(Command command) => UnitType.Default;
-
-                public async Task<UnitType> Handle(AsyncCommand command) => await Task.FromResult(UnitType.Default);
             }
         }
     }

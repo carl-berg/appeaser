@@ -18,23 +18,23 @@ namespace Appeaser.Tests
         public void Test_Exception_Is_Wrapped_By_Default()
         {
             var mediator = new Mediator(_handlerFactory);
-            Assert.Throws<MediatorQueryException>(() => mediator.Request(new TestFeature.Query()));
+            Assert.Throws<MediatorRequestException>(() => mediator.Request(new TestFeature.Request()));
         }
 
         [Fact]
         public void Test_Exception_Wrapping_Can_Be_Disabled()
         {
             var mediator = new Mediator(_handlerFactory, new TestMediatorSettings { WrapExceptions = false });
-            Assert.Throws<Exception>(() => mediator.Request(new TestFeature.Query()));
+            Assert.Throws<Exception>(() => mediator.Request(new TestFeature.Request()));
         }
 
         public class TestFeature
         {
-            public class Query : IQuery<Result> { }
+            public class Request : IRequest<Result> { }
 
-            public class Handler : IQueryHandler<Query, Result>
+            public class Handler : IRequestHandler<Request, Result>
             {
-                public Result Handle(Query request)
+                public Result Handle(Request request)
                 {
                     throw new Exception("Expected excepton");
                 }
