@@ -116,12 +116,12 @@ The appeaser library is ment to be used together with dependency injection. As I
     }
 
 ... and your your ioc configuration could look like this
-	
+
 	// For Lamar
 	public class MyLamarRegistry : ServiceRegistry
 	{
-		public MyLamarRegistry()
-		{
+	    public MyLamarRegistry()
+	    {
             For<IMediator>().Use<Mediator>();
             For<IMediatorHandlerFactory>().Use<MediatorHandlerFactory>();
             Scan(s =>
@@ -132,14 +132,14 @@ The appeaser library is ment to be used together with dependency injection. As I
                 s.ConnectImplementationsToTypesClosing(typeof(ICommandHandler<,>));
                 s.ConnectImplementationsToTypesClosing(typeof(IAsyncCommandHandler<,>));
             });			
-		}
+	    }
 	}
 
 	// For StructureMap
 	public class MyStructuremapRegistry : Registry
 	{
-		public MyStructuremapRegistry()
-		{
+	    public MyStructuremapRegistry()
+	    {
             For<IMediator>().Use<Mediator>();
             For<IMediatorSettings>().Use<MediatorSettings>();
             For<IMediatorHandlerFactory>().Use<MediatorHandlerFactory>();
@@ -151,5 +151,5 @@ The appeaser library is ment to be used together with dependency injection. As I
                 s.ConnectImplementationsToTypesClosing(typeof(ICommandHandler<,>));
                 s.ConnectImplementationsToTypesClosing(typeof(IAsyncCommandHandler<,>));
             });			
-		}
+        }
 	}
