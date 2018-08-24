@@ -100,11 +100,11 @@ Executing a command:
 ## Dependency injection
 The appeaser library is ment to be used together with dependency injection. As I am not a big believer in adding a dependency resolver for each dependency injection library out there (but in the future I might implement built in dependency injection of some kind), you can easily handle it yourself by implementing the `IMediatorHandlerFactory` interface like this:
 
-    public class StructuremapMediatorHandlerFactory : IMediatorHandlerFactory
+    public class MediatorHandlerFactory : IMediatorHandlerFactory
     {
         private readonly IContainer _container;
 
-        public StructuremapMediatorHandlerFactory(IContainer container)
+        public MediatorHandlerFactory(IContainer container)
         {
             _container = container;
         }
@@ -115,14 +115,34 @@ The appeaser library is ment to be used together with dependency injection. As I
         }
     }
 
-... and in your structuremap registry, scan your handlers like this:
+... and your your ioc configuration could look like this
+	
+	// For Lamar
+	public class MyLamarRegistry : ServiceRegistry
+	{
+		public MyLamarRegistry()
+		{
+            For<IMediator>().Use<Mediator>();
+            For<IMediatorHandlerFactory>().Use<MediatorHandlerFactory>();
+            Scan(s =>
+            {
+                s.TheCallingAssembly();
+                s.ConnectImplementationsToTypesClosing(typeof(IQueryHandler<,>));
+                s.ConnectImplementationsToTypesClosing(typeof(IAsyncQueryHandler<,>));
+                s.ConnectImplementationsToTypesClosing(typeof(ICommandHandler<,>));
+                s.ConnectImplementationsToTypesClosing(typeof(IAsyncCommandHandler<,>));
+            });			
+		}
+	}
 
+	// For StructureMap
 	public class MyStructuremapRegistry : Registry
 	{
 		public MyStructuremapRegistry()
 		{
             For<IMediator>().Use<Mediator>();
-            For<IMediatorHandlerFactory>().Use<StructuremapMediatorHandlerFactory>();
+            For<IMediatorSettings>().Use<MediatorSettings>();
+            For<IMediatorHandlerFactory>().Use<MediatorHandlerFactory>();
             Scan(s =>
             {
                 s.TheCallingAssembly();
