@@ -4,21 +4,23 @@ using Xunit;
 
 namespace Appeaser.Tests
 {
-    public class MediatorTest
+    public class MediatorTest : TestBase
     {
         private TestHandlerFactory _handlerFactory;
 
         public MediatorTest()
         {
             _handlerFactory = new TestHandlerFactory()
-                .AddHandler<TestFeature.Handler>();
+                .AddHandler<RequestFeature.Handler>()
+                .AddHandler<QueryFeature.Handler>()
+                .AddHandler<CommandFeature.Handler>();
         }
 
         [Fact]
         public void Can_Resolve_Query()
         {
             var mediator = new Mediator(_handlerFactory);
-            var result = mediator.Request(new TestFeature.Query());
+            var result = mediator.Request(new QueryFeature.Query());
             Assert.NotNull(result);
         }
 
@@ -26,7 +28,7 @@ namespace Appeaser.Tests
         public async Task Can_Resolve_Async_Query()
         {
             var mediator = new Mediator(_handlerFactory);
-            var result = await mediator.Request(new TestFeature.AsyncQuery());
+            var result = await mediator.Request(new QueryFeature.AsyncQuery());
             Assert.NotNull(result);
         }
 
@@ -34,7 +36,7 @@ namespace Appeaser.Tests
         public void Can_Resolve_Command()
         {
             var mediator = new Mediator(_handlerFactory);
-            var result = mediator.Send(new TestFeature.Command());
+            var result = mediator.Send(new CommandFeature.Command());
             Assert.NotNull(result);
         }
 
@@ -42,7 +44,7 @@ namespace Appeaser.Tests
         public async Task Can_Resolve_Async_Command()
         {
             var mediator = new Mediator(_handlerFactory);
-            var result = await mediator.Send(new TestFeature.AsyncCommand());
+            var result = await mediator.Send(new CommandFeature.AsyncCommand());
             Assert.NotNull(result);
         }
 
@@ -51,43 +53,6 @@ namespace Appeaser.Tests
         {
             var mediator = new Mediator(_handlerFactory);
             Assert.Throws<MediatorQueryException>(() => mediator.Request(new AnotherTestFeature.Query()));
-        }
-
-        public class TestFeature
-        {
-            public class Query : IQuery<Result> { }
-            public class AsyncQuery : IAsyncQuery<Result> { }
-            public class Command : ICommand<Result> { }
-            public class AsyncCommand : IAsyncCommand<Result> { }
-
-            public class Handler : 
-                IQueryHandler<Query, Result>,
-                IAsyncQueryHandler<AsyncQuery, Result>,
-                ICommandHandler<Command, Result>,
-                IAsyncCommandHandler<AsyncCommand, Result>
-            {
-                public Result Handle(Query request)
-                {
-                    return new Result();
-                }
-
-                public Task<Result> Handle(AsyncQuery request)
-                {
-                    return Task.FromResult(new Result());
-                }
-
-                public Result Handle(Command request)
-                {
-                    return new Result();
-                }
-
-                public Task<Result> Handle(AsyncCommand request)
-                {
-                    return Task.FromResult(new Result());
-                }
-            }
-
-            public class Result { }
         }
 
         public class AnotherTestFeature

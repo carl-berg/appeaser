@@ -10,9 +10,8 @@
     <projectUrl>https://github.com/carl-berg/appeaser</projectUrl>
     <licenseUrl>http://www.opensource.org/licenses/mit-license.php</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Appeaser, an appeasing mediator.</description>
-    <copyright>Copyright 2017</copyright>
+    <description>Appeaser, the appeasing mediator</description>
+    <copyright>Copyright 2018</copyright>
     <tags>Appeaser</tags>
-    <releaseNotes>Initial release.</releaseNotes>   
   </metadata>
 </package>

@@ -5,97 +5,123 @@ A mediator implementation in C#, inspired by [a blog post series](http://lostech
 ## Using the mediator
 Executing a query:
 
-	var something = mediator.Request(new GetSomething());
+	var something = mediator.Request(new GetSomething.Query());
 
-	//Async version
-	var result = await mediator.Request(new GetSomethingAsync());
+	// async version
+	var result = await mediator.Request(new GetSomething.AsyncQuery());
 	
 Executing a command:
 
-	var result = mediator.Send(new DoSomething());
+	var result = mediator.Send(new DoSomething.Command());
 
-	//Async version
-	var result = await mediator.Send(new DoSomethingAsync());
-
+	// async version
+	var result = await mediator.Send(new DoSomething.AsyncCommand());
 
 ## Queries
-	public class GetSomething : IQuery<Something>
-	{
-		public GetSomething(/* query parameters */)
-		{
-			// ...
-		}
-	}
 
-	//Async version
-	public class GetSomethingAsync : IAsyncQuery<Something>
+    public class GetSomething
 	{
-		public GetSomething(/* query parameters */)
-		{
-			// ...
-		}
-	}
+        public class Query : IQuery<Result>
+        {
+            public Query(/* query parameters */)
+            {
+                // ...
+            }
+        }
 
+        //Async version
+        public class AsyncQuery : IAsyncQuery<Result>
+        {
+            public AsyncQuery(/* query parameters */)
+            {
+                // ...
+            }
+        }
+
+        public class Handler :  
+            IQueryHandler<Query, Result>,
+            IAsyncQueryHandler<AsyncQuery, Result>
+        {
+            public SomethingHandler( /* interesting dependencies here */)
+            {
+                // ...
+            }
+
+            public Result Handle(Query query)
+            {
+                // ...
+            }
+
+            public async Task<Result> Handle(AsyncQuery query)
+            {
+                // ...
+            }
+        }
+
+        public class Result { }
+    }
 
 ## Commands
-	public class DoSomething : ICommand<Something>
-	{
-		public DoSomething(/* command parameters */)
-		{
-			// ...
-		}
-	}
 
-	//Async version
-	public class DoSomethingAsync : IAsyncCommand<Something>
-	{
-		public DoSomething(/* command parameters */)
-		{
-			// ...
-		}
-	}
+    public class DoSomething
+    {
+        public class Command : ICommand<Result>
+        {
+            public Command(/* command parameters */)
+            {
+                // ...
+            }
+        }
 
-## Query Handler
-	public class SomethingQueryHandler :  
-		IQueryHandler<GetSomething, Something>,
-		IAsyncQueryHandler<GetSomethingAsync, Something>
-	{
-		public SomethingHandler( /* interesting dependencies here */)
-		{
-			// ...
-		}
+        public class AsyncCommand : IAsyncCommand<Result>
+        {
+            public AsyncCommand(/* command parameters */)
+            {
+                // ...
+            }
+        }
 
-		public Something Handle(GetSomething query)
-		{
-			// ...
-		}
+        public class Handler :  
+            ICommandHandler<Command, Result>,
+            IAsyncCommandHandler<AsyncCommand, Result>
+        {
+            public Handler(/* interesting dependencies here */)
+            {
+                // ...
+            }
 
-		public async Task<Something> Handle(GetSomethingAsync query)
-		{
-			// ...
-		}
-	}
+            public Result Handle(Command command)
+            {
+                // ...
+            }
 
-## Command Handler
-	public class SomethingCommandHandler :  
-		ICommandHandler<DoSomething, SomethingResult>,
-		IAsyncCommandHandler<DoSomethingAsync, SomethingResult>
-	{
-		public SomethingHandler(/* interesting dependencies here */)
-		{
-			// ...
-		}
+            public async Task<Result> Handle(AsyncCommand command)
+            {
+                // ...
+            }
+        }
 
-		public SomethingResult Handle(DoSomething command)
-		{
-			// ...
-		}
+        public class Result { }
+    }
 
-		public async Task<SomethingResult> Handle(DoSomethingAsync command)
-		{
-			// ...
-		}
-	}
+## Simple Mediator
+The mediator also implements a simpler interface `ISimpleMediator` in case you find the Command/Query names to obtuse and simply want to use a single request method. The simple mediator can be used like this:
+
+    var something = await mediator.Request(new Feature.Request());
+
+with something like this as the implementation:
+
+    public class Feture
+    {
+        public class Request : IAsyncRequest<Response> { }
+
+	    public class Handler : IAsyncRequestHandler<Request, Response>
+	    {
+            public Response Handle(Request request) => new Response();
+	    }
+
+	    public class Response { }
+    }
 
 ## Dependency injection
 The appeaser library is ment to be used together with dependency injection. As I am not a big believer in adding a dependency resolver for each dependency injection library out there (but in the future I might implement built in dependency injection of some kind), you can easily handle it yourself by implementing the `IMediatorHandlerFactory` interface like this:
@@ -127,10 +153,8 @@ The appeaser library is ment to be used together with dependency injection. As I
             Scan(s =>
             {
                 s.TheCallingAssembly();
-                s.ConnectImplementationsToTypesClosing(typeof(IQueryHandler<,>));
-                s.ConnectImplementationsToTypesClosing(typeof(IAsyncQueryHandler<,>));
-                s.ConnectImplementationsToTypesClosing(typeof(ICommandHandler<,>));
-                s.ConnectImplementationsToTypesClosing(typeof(IAsyncCommandHandler<,>));
+                s.ConnectImplementationsToTypesClosing(typeof(IRequestHandler<,>));
+                s.ConnectImplementationsToTypesClosing(typeof(IAsyncRequestHandler<,>));
             });			
 	    }
 	}
@@ -146,10 +170,8 @@ The appeaser library is ment to be used together with dependency injection. As I
             Scan(s =>
             {
                 s.TheCallingAssembly();
-                s.ConnectImplementationsToTypesClosing(typeof(IQueryHandler<,>));
-                s.ConnectImplementationsToTypesClosing(typeof(IAsyncQueryHandler<,>));
-                s.ConnectImplementationsToTypesClosing(typeof(ICommandHandler<,>));
-                s.ConnectImplementationsToTypesClosing(typeof(IAsyncCommandHandler<,>));
+                s.ConnectImplementationsToTypesClosing(typeof(IRequestHandler<,>));
+                s.ConnectImplementationsToTypesClosing(typeof(IAsyncRequestHandler<,>));
             });			
         }
 	}

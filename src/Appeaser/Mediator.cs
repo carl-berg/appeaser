@@ -5,7 +5,7 @@ using Appeaser.Exceptions;
 
 namespace Appeaser
 {
-    public class Mediator : IMediator
+    public class Mediator : IMediator, ISimpleMediator
     {
         protected readonly IMediatorHandlerFactory HandlerFactory;
         protected readonly IMediatorSettings Settings;
@@ -61,6 +61,52 @@ namespace Appeaser
                 }
 
                 throw new MediatorQueryException(ex, query.GetType());
+            }
+        }
+
+        public virtual TResponse Request<TResponse>(IRequest<TResponse> request)
+        {
+            try
+            {
+                var handler = GetHandler<TResponse>(typeof(IRequestHandler<,>), request);
+                if (handler == null)
+                {
+                    throw new MediatorRequestException("No request handler of type {0} could be found", request.GetType());
+                }
+
+                return InvokeHandler<TResponse>(handler, request);
+            }
+            catch (Exception ex)
+            {
+                if (ex is MediatorRequestException || !Settings.WrapExceptions)
+                {
+                    throw;
+                }
+
+                throw new MediatorRequestException(ex, request.GetType());
+            }
+        }
+
+        public virtual async Task<TResponse> Request<TResponse>(IAsyncRequest<TResponse> request)
+        {
+            try
+            {
+                var handler = GetHandler<TResponse>(typeof(IAsyncRequestHandler<,>), request);
+                if (handler == null)
+                {
+                    throw new MediatorRequestException("No request handler of type {0} could be found", request.GetType());
+                }
+
+                return await InvokeHandlerAsync<TResponse>(handler, request);
+            }
+            catch (Exception ex)
+            {
+                if (ex is MediatorRequestException || !Settings.WrapExceptions)
+                {
+                    throw;
+                }
+
+                throw new MediatorRequestException(ex, request.GetType());
             }
         }
 

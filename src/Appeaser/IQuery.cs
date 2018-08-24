@@ -1,4 +1,4 @@
 namespace Appeaser
 {
-    public interface IQuery<TReturn> { }
+    public interface IQuery<TReturn> : IRequest<TReturn> { }
 }
