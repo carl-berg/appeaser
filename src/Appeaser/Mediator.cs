@@ -120,13 +120,12 @@ namespace Appeaser
 
         protected virtual TReturn InvokeHandler<TReturn>(object handler, object parameter)
         {
-
             var method = handler.GetType().GetRuntimeMethod("Handle", new[] { parameter.GetType() });
             try
             { 
                 return (TReturn)method.Invoke(handler, new[] { parameter });
             }
-            catch(TargetInvocationException ex)
+            catch (TargetInvocationException ex)
             {
                 throw ex.InnerException;
             }

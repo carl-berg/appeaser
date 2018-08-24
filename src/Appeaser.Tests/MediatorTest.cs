@@ -1,5 +1,5 @@
-﻿using Appeaser.Exceptions;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Appeaser.Exceptions;
 using Xunit;
 
 namespace Appeaser.Tests

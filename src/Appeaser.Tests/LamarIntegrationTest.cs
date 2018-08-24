@@ -90,7 +90,7 @@ namespace Appeaser.Tests
             {
                 public UnitType Handle(Request request) => UnitType.Default;
 
-                public async Task<UnitType> Handle(AsyncRequest request) =>  await Task.FromResult(UnitType.Default);
+                public async Task<UnitType> Handle(AsyncRequest request) => await Task.FromResult(UnitType.Default);
             }
         }
 
