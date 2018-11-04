@@ -3,9 +3,9 @@ using System.Threading.Tasks;
 using StructureMap;
 using Xunit;
 
-namespace Appeaser.Tests
+namespace Appeaser.Tests.IntegrationTests
 {
-    public class StructuremapIntegrationTest : TestBase
+    public class StructuremapIntegrationTest : IntegrationTestBase
     {
         private Container _container;
 
@@ -13,7 +13,7 @@ namespace Appeaser.Tests
         {
             _container = new Container(configure =>
             {
-                configure.For<IMediatorHandlerFactory>().Use<StructuremapMediatorHandlerFactory>().Singleton();
+                configure.For<IMediatorHandlerFactory>().Use<StructuremapMediatorHandlerFactory>();
                 configure.For<IMediatorSettings>().Use<MediatorSettings>();
                 configure.For<IMediator>().Use<Mediator>();
                 configure.For<ISimpleMediator>().Use<Mediator>();
@@ -72,6 +72,19 @@ namespace Appeaser.Tests
             var mediator = _container.GetInstance<IMediator>();
             var result = await mediator.Send(new CommandFeature.AsyncCommand());
             Assert.Equal(UnitType.Default, result);
+        }
+
+        [Fact]
+        public void Configuration_disposes_disposables_in_nested_container()
+        {
+            TestDisposable result;
+            using (var nestedContainer = _container.GetNestedContainer("Nested"))
+            {
+                var mediator = nestedContainer.GetInstance<ISimpleMediator>();
+                result = mediator.Request(new DisposableFeature.Request());
+            }
+
+            Assert.True(result.IsDisposed);
         }
 
         public class StructuremapMediatorHandlerFactory : IMediatorHandlerFactory

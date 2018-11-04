@@ -3,9 +3,9 @@ using System.Threading.Tasks;
 using Lamar;
 using Xunit;
 
-namespace Appeaser.Tests
+namespace Appeaser.Tests.IntegrationTests
 {
-    public class LamarIntegrationTest : TestBase
+    public class LamarIntegrationTest : IntegrationTestBase
     {
         private Container _container;
 
@@ -13,7 +13,7 @@ namespace Appeaser.Tests
         {
             _container = new Container(configure =>
             {
-                configure.ForSingletonOf<IMediatorHandlerFactory>().Use<LamarMediatorHandlerFactory>();
+                configure.For<IMediatorHandlerFactory>().Use<LamarMediatorHandlerFactory>();
                 configure.For<IMediator>().Use<Mediator>();
                 configure.For<ISimpleMediator>().Use<Mediator>();
                 configure.Scan(s =>
@@ -73,18 +73,31 @@ namespace Appeaser.Tests
             Assert.Equal(UnitType.Default, result);
         }
 
+        [Fact]
+        public void Configuration_disposes_disposables_in_nested_container()
+        {
+            TestDisposable result;
+            using (var nestedContainer = _container.GetNestedContainer())
+            {
+                var mediator = nestedContainer.GetInstance<ISimpleMediator>();
+                result = mediator.Request(new DisposableFeature.Request());
+            }
+
+            Assert.True(result.IsDisposed);
+        }
+
         public class LamarMediatorHandlerFactory : IMediatorHandlerFactory
         {
-            private readonly IContainer _container;
+            private readonly IServiceContext _serviceContext;
 
-            public LamarMediatorHandlerFactory(IContainer container)
+            public LamarMediatorHandlerFactory(IServiceContext serviceContext)
             {
-                _container = container;
+                _serviceContext = serviceContext;
             }
 
             public object GetHandler(Type handlerType)
             {
-                return _container.TryGetInstance(handlerType);
+                return _serviceContext.TryGetInstance(handlerType);
             }
         }
     }
