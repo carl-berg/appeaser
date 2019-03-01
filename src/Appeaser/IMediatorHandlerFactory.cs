@@ -6,4 +6,9 @@ namespace Appeaser
     {
         object GetHandler(Type handlerType);
     }
+
+    public interface IMediatorResolver : IMediatorHandlerFactory
+    {
+        object GetInterceptor(Type interceptorType);
+    }
 }
