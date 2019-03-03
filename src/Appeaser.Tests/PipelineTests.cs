@@ -1,6 +1,7 @@
-﻿using FakeItEasy;
-using System;
+﻿using System;
 using System.Threading.Tasks;
+using Appeaser.Interception;
+using FakeItEasy;
 using Xunit;
 
 namespace Appeaser.Tests
@@ -12,7 +13,7 @@ namespace Appeaser.Tests
         public PipelineTests()
         {
             _handler = A.Fake<IMediatorHandlerFactory>();
-            A.CallTo(() => _handler.GetHandler(A<Type>.That.IsEqualTo(typeof(ICommandHandler<CommandFeature.Command, UnitType>))))
+            A.CallTo(() => _handler.GetHandler(A<Type>.That.IsEqualTo(typeof(ICommandHandler<CommandFeature.Command, CommandFeature.Response>))))
                 .Returns(new CommandFeature.Handler());
         }
 
@@ -42,9 +43,9 @@ namespace Appeaser.Tests
             var command = new CommandFeature.Command();
             var response = mediator.Send(command);
 
-            Assert.True(interceptor.HasBeenIntercepted);
-            Assert.Same(command, interceptor.Request);
-            Assert.Same(response, interceptor.Response);
+            Assert.Same(command, interceptor.Context.Request);
+            Assert.Same(response, interceptor.Context.Response);
+            Assert.True(response.AlteredByInterception);
         }
 
         [Fact]
@@ -59,60 +60,109 @@ namespace Appeaser.Tests
 
             Assert.True(interceptor.RequestWasIntercepted);
             Assert.True(interceptor.ResponseWasIntercepted);
+
+            // Assert interceptor that handles both request and response is not constructed twice
+            A.CallTo(() => _handler.GetHandler(A<Type>.That.IsEqualTo(typeof(Interceptor))))
+                .MustHaveHappened(1, Times.Exactly);
+        }
+
+        [Fact]
+        public void TestReponseExceptionInterception()
+        {
+            var interceptor = new ResponseInterceptor();
+            var settings = new MediatorSettings { WrapExceptions = false }.AddResponseInterceptor<ResponseInterceptor>();
+            A.CallTo(() => _handler.GetHandler(A<Type>.That.IsEqualTo(typeof(ResponseInterceptor)))).Returns(interceptor);
+            var mediator = new Mediator(_handler, settings);
+
+            var command = new CommandFeature.Command { TriggerException = true };
+
+            Assert.Throws<ArgumentException>(() => mediator.Send(command));
+
+            Assert.Same(command, interceptor.Context.Request);
+            Assert.IsType<ArgumentException>(interceptor.Context.Exception);
         }
 
         public class Interceptor : IRequestInterceptor, IResponseInterceptor
         {
-            public void Intercept(IRequestInterceptionContext context)
-            {
-                RequestWasIntercepted = true;
-            }
-
-            public void Intercept(IResponseInterceptionContext context)
-            {
-                ResponseWasIntercepted = true;
-            }
-
             public bool RequestWasIntercepted { get; set; }
             public bool ResponseWasIntercepted { get; set; }
+
+            public Task Intercept(IRequestInterceptionContext context)
+            {
+                RequestWasIntercepted = true;
+                return Task.CompletedTask;
+            }
+
+            public Task Intercept(IResponseInterceptionContext context)
+            {
+                ResponseWasIntercepted = true;
+                return Task.CompletedTask;
+            }
         }
 
         public class RequestInterceptor : IRequestInterceptor
         {
-            public void Intercept(IRequestInterceptionContext context)
+            public bool HasBeenIntercepted { get; set; }
+            public object Request { get; set; }
+
+            public Task Intercept(IRequestInterceptionContext context)
             {
                 Request = context.Request;
                 HasBeenIntercepted = true;
+                return Task.CompletedTask;
             }
-
-            public bool HasBeenIntercepted { get; set; }
-            public object Request { get; set; }
         }
 
         public class ResponseInterceptor : IResponseInterceptor
         {
-            public void Intercept(IResponseInterceptionContext context)
-            {
-                Request = context.Request;
-                Response = context.Response;
-                HasBeenIntercepted = true;
-            }
+            public IResponseInterceptionContext Context { get; set; }
 
-            public bool HasBeenIntercepted { get; set; }
-            public object Request { get; set; }
-            public object Response { get; set; }
+            public Task Intercept(IResponseInterceptionContext context)
+            {
+                Context = context;
+                if (context.Response is CommandFeature.Response response)
+                {
+                    response.AlteredByInterception = true;
+                }
+
+                return Task.CompletedTask;
+            }
+        }
+
+        public class ExceptionInterceptor : IResponseInterceptor
+        {
+            public Exception CaughtException { get; private set; }
+
+            public Task Intercept(IResponseInterceptionContext context)
+            {
+                CaughtException = context.Exception;
+                return Task.CompletedTask;
+            }
         }
 
         public class CommandFeature
         {
-            public class Command : ICommand<UnitType> { }
-            public class AsyncCommand : IAsyncCommand<UnitType> { }
-
-            public class Handler : ICommandHandler<Command, UnitType>, IAsyncCommandHandler<AsyncCommand, UnitType>
+            public class Command : ICommand<Response>
             {
-                public UnitType Handle(Command command) => UnitType.Default;
+                public bool TriggerException { get; set; }
+            }
 
-                public async Task<UnitType> Handle(AsyncCommand command) => await Task.FromResult(UnitType.Default);
+            public class Handler : ICommandHandler<Command, Response>
+            {
+                public Response Handle(Command command)
+                {
+                    if (command.TriggerException)
+                    {
+                        throw new ArgumentException();
+                    }
+
+                    return new Response();
+                }
+            }
+
+            public class Response
+            {
+                public bool AlteredByInterception { get; set; }
             }
         }
     }

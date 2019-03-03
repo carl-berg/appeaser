@@ -1,7 +1,9 @@
-﻿using FluentValidation;
+﻿using System;
+using System.Threading.Tasks;
+using Appeaser.Interception;
+using FluentValidation;
 using FluentValidation.Results;
 using Lamar;
-using System;
 using Xunit;
 
 namespace Appeaser.Tests.IntegrationTests
@@ -12,15 +14,11 @@ namespace Appeaser.Tests.IntegrationTests
 
         public FluentValidationTest()
         {
-
             _container = new Container(configure =>
             {
                 configure.For<IValidatorFactory>().Use<ValidatorFactory>();
                 configure.For<IMediatorHandlerFactory>().Use<LamarMediatorHandlerFactory>();
-                configure.For<IMediator>().Use(x => new Mediator(
-                        x.GetInstance<IMediatorHandlerFactory>(), 
-                        new MediatorSettings { WrapExceptions = false }
-                            .AddRequestInterceptor<ValidatingRequestInterceptor>()));
+                configure.For<IMediator>().Use(CreateMediator);
                 configure.Scan(s =>
                 {
                     s.AssemblyContainingType<FluentValidationTest>();
@@ -32,24 +30,32 @@ namespace Appeaser.Tests.IntegrationTests
         }
 
         [Fact]
-        public void TestValidationRequestInterceptionCanFailValidation()
+        public async Task TestValidationRequestInterceptionCanFailValidation()
         {
             var mediator = _container.GetInstance<IMediator>();
-            var exception = Assert.Throws<ValidationException>(() => mediator.Send(new TestFeature.Command(null)));
+            var exception = await Assert.ThrowsAsync<ValidationException>(() => mediator.Send(new TestFeature.Command(null)));
             Assert.False(exception.ValidationResult.IsValid);
         }
 
         [Fact]
-        public void TestValidationRequestInterceptionCanPassValidation()
+        public async Task TestValidationRequestInterceptionCanPassValidation()
         {
             var mediator = _container.GetInstance<IMediator>();
-            var response = mediator.Send(new TestFeature.Command("name"));
+            var response = await mediator.Send(new TestFeature.Command("name"));
             Assert.Equal(UnitType.Default, response);
+        }
+
+        private Mediator CreateMediator(IServiceContext context)
+        {
+            var handlerFactory = context.GetInstance<IMediatorHandlerFactory>();
+            var settings = new MediatorSettings { WrapExceptions = false }
+                .AddRequestInterceptor<ValidatingRequestInterceptor>();
+            return new Mediator(handlerFactory, settings);
         }
 
         public class TestFeature
         {
-            public class Command : ICommand<UnitType>
+            public class Command : IAsyncCommand<UnitType>
             {
                 public Command(string name) => Name = name;
                 public string Name { get; set; }
@@ -59,13 +65,18 @@ namespace Appeaser.Tests.IntegrationTests
             {
                 public Validator()
                 {
-                    RuleFor(x => x.Name).NotNull();
+                    // Async validation... just because
+                    RuleFor(x => x.Name).MustAsync(async (val, ct) =>
+                    {
+                        await Task.Delay(500);
+                        return val != null;
+                    });
                 }
             }
 
-            public class Handler : ICommandHandler<Command, UnitType>
+            public class Handler : IAsyncCommandHandler<Command, UnitType>
             {
-                public UnitType Handle(Command request) => UnitType.Default;
+                public Task<UnitType> Handle(Command request) => Task.FromResult(UnitType.Default);
             }
         }
 
@@ -88,11 +99,11 @@ namespace Appeaser.Tests.IntegrationTests
                 _factory = factory;
             }
 
-            public void Intercept(IRequestInterceptionContext context)
+            public async Task Intercept(IRequestInterceptionContext context)
             {
                 if (_factory.GetValidator(context.RequestType) is IValidator validator)
                 {
-                    var result = validator.Validate(context.Request);
+                    var result = await validator.ValidateAsync(context.Request);
                     if (!result.IsValid)
                     {
                         throw new ValidationException(result);

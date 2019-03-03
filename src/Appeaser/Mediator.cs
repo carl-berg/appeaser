@@ -1,8 +1,8 @@
 using System;
-using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Appeaser.Exceptions;
+using Appeaser.Interception;
 
 namespace Appeaser
 {
@@ -10,6 +10,7 @@ namespace Appeaser
     {
         protected readonly IMediatorHandlerFactory Resolver;
         protected readonly IMediatorSettings Settings;
+        private readonly MediatorInterceptor _interceptor;
 
         public Mediator(IMediatorHandlerFactory handlerFactory) : this(handlerFactory, new MediatorSettings()) { }
 
@@ -19,12 +20,14 @@ namespace Appeaser
         {
             Resolver = handlerFactory;
             Settings = settings ?? new MediatorSettings();
+            _interceptor = new MediatorInterceptor(settings, handlerFactory);
         }
 
         public Mediator(IMediatorResolver resolver, IMediatorSettings settings)
         {
             Resolver = resolver;
             Settings = settings ?? new MediatorSettings();
+            _interceptor = new MediatorInterceptor(settings, resolver);
         }
 
         public virtual TResponse Request<TResponse>(IQuery<TResponse> query)
@@ -175,72 +178,26 @@ namespace Appeaser
 
         protected virtual TReturn InvokeHandler<TReturn>(object handler, object parameter)
         {
-            var parameterType = parameter.GetType();
-            var handlerType = handler.GetType();
-            var method = handlerType.GetRuntimeMethod("Handle", new[] { parameterType });
-            var requestContext = new RequestInterceptionContext(parameterType, handlerType, handler, parameter);
-            try
-            {
-                InvokeRequestInterceptors(requestContext);
-                var response = (TReturn)method.Invoke(handler, new[] { parameter });
-                InvokeResponseInterceptors(new ResponseInterceptionContext(requestContext, typeof(TReturn), response));
-                return response;
-            }
-            catch (TargetInvocationException ex)
-            {
-                InvokeResponseInterceptors(new ResponseInterceptionContext(requestContext, typeof(TReturn), ex));
-                throw ex.InnerException;
-            }
+            return _interceptor.InvokeHandler(
+                handler, 
+                parameter, 
+                scope =>
+                {
+                    var method = scope.HandlerType.GetRuntimeMethod("Handle", new[] { scope.RequestType });
+                    return (TReturn)method.Invoke(handler, new[] { parameter });
+                });
         }
 
-        protected virtual async Task<TReturn> InvokeHandlerAsync<TReturn>(object handler, object parameter)
-        {
-            var parameterType = parameter.GetType();
-            var handlerType = handler.GetType();
-            var method = handlerType.GetRuntimeMethod("Handle", new[] { parameterType });
-            var requestContext = new RequestInterceptionContext(parameterType, handlerType, handler, parameter);
-            try
-            {
-                InvokeRequestInterceptors(requestContext);
-                var response = await(Task<TReturn>)method.Invoke(handler, new[] { parameter });
-                InvokeResponseInterceptors(new ResponseInterceptionContext(requestContext, typeof(TReturn), response));
-                return response;
-            }
-            catch (TargetInvocationException ex)
-            {
-                InvokeResponseInterceptors(new ResponseInterceptionContext(requestContext, typeof(TReturn), ex));
-                throw ex.InnerException;
-            }
-        }
-
-        private object GetInterceptor(Type interceptorType)
-        {
-            if (Resolver is IMediatorResolver resolver)
-            {
-                return resolver.GetInterceptor(interceptorType);
-            }
-            else
-            {
-                return Resolver.GetHandler(interceptorType);
-            }
-        }
-
-        private void InvokeRequestInterceptors(RequestInterceptionContext context)
-        {
-            var interceptors = (Settings.RequestInterceptors ?? new Type[0]).Select(GetInterceptor).OfType<IRequestInterceptor>();
-            foreach (var interceptor in interceptors)
-            {
-                interceptor.Intercept(context);
-            }
-        }
-
-        private void InvokeResponseInterceptors(ResponseInterceptionContext context)
-        {
-            var interceptors = (Settings.ResponseInterceptors ?? new Type[0]).Select(GetInterceptor).OfType<IResponseInterceptor>();
-            foreach (var interceptor in interceptors)
-            {
-                interceptor.Intercept(context);
-            }
+        protected virtual Task<TReturn> InvokeHandlerAsync<TReturn>(object handler, object parameter)
+        {          
+            return _interceptor.InvokeHandlerAsync(
+                handler, 
+                parameter, 
+                scope =>
+                {
+                    var method = scope.HandlerType.GetRuntimeMethod("Handle", new[] { scope.RequestType });
+                    return (Task<TReturn>)method.Invoke(handler, new[] { parameter });
+                });
         }
     }
 }
