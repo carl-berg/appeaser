@@ -27,30 +27,39 @@ namespace Appeaser.Interception
 
         public object Request { get; }
 
-        internal Task InvokeRequestInterceptors()
+        internal async Task InvokeRequestInterceptors()
         {
             _requestInterceptors = _config.RequestInterceptors
                 .Select(type => _config.Resolve(type))
                 .OfType<IRequestInterceptor>().ToList();
-            return Task.WhenAll(_requestInterceptors.Select(interceptor => interceptor.Intercept(this)));
+            foreach (var interceptor in _requestInterceptors)
+            {
+                await interceptor.Intercept(this);
+            }
         }
 
-        internal Task InvokeResponseInterceptors<TResponse>(TResponse response)
+        internal async Task InvokeResponseInterceptors<TResponse>(TResponse response)
         {
             var context = new ResponseInterceptionContext(this, typeof(TResponse), response);
             var interceptors = _config.ResponseInterceptors
                 .Select(ResolveResponseInterceptor)
                 .OfType<IResponseInterceptor>().ToList();
-            return Task.WhenAll(interceptors.Select(interceptor => interceptor.Intercept(context)));
+            foreach (var interceptor in interceptors)
+            {
+                await interceptor.Intercept(context);
+            }
         }
 
-        internal Task InvokeResponseInterceptorsWithException<TResponse>(Exception exception)
+        internal async Task InvokeResponseInterceptorsWithException<TResponse>(Exception exception)
         {
             var context = new ResponseInterceptionContext(this, typeof(TResponse), exception);
             var interceptors = _config.ResponseInterceptors
                 .Select(ResolveResponseInterceptor)
                 .OfType<IResponseInterceptor>().ToList();
-            return Task.WhenAll(interceptors.Select(interceptor => interceptor.Intercept(context)));
+            foreach (var interceptor in interceptors)
+            {
+                await interceptor.Intercept(context);
+            }
         }
 
         private IResponseInterceptor ResolveResponseInterceptor(Type type)
