@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Appeaser.Interception;
 using FakeItEasy;
@@ -16,6 +17,8 @@ namespace Appeaser.Tests
             _handler = A.Fake<IMediatorHandlerFactory>();
             A.CallTo(() => _handler.GetHandler(A<Type>.That.IsEqualTo(typeof(ICommandHandler<CommandFeature.Command, CommandFeature.Response>))))
                 .Returns(new CommandFeature.Handler());
+            A.CallTo(() => _handler.GetHandler(A<Type>.That.IsEqualTo(typeof(IAsyncCommandHandler<Async.Command, UnitType>))))
+                .Returns(new Async.Handler());
         }
 
         [Fact]
@@ -102,6 +105,24 @@ namespace Appeaser.Tests
             Assert.Equal(new[] { "second", "first" }, responses);
         }
 
+        [Fact]
+        public async Task TestInterceptionAsynchronisity()
+        {
+            var interceptor = new Async.RequestInterceptor();
+            A.CallTo(() => _handler.GetHandler(A<Type>.That.IsEqualTo(typeof(Async.RequestInterceptor)))).Returns(interceptor);
+            var settings = new MediatorSettings().AddRequestInterceptor<Async.RequestInterceptor>();
+            var mediator = new Mediator(_handler, settings);
+
+            var command = new Async.Command();
+            var t = mediator.Send(command);
+            command.Release();
+            await t;
+
+            Assert.True(interceptor.HasBeenIntercepted);
+            Assert.Same(command, interceptor.Request);
+            Assert.True(command.AsynchronousInterceptorHasBeenCalled);
+        }
+
         public class Interceptor : IRequestInterceptor, IResponseInterceptor
         {
             public bool RequestWasIntercepted { get; set; }
@@ -126,7 +147,7 @@ namespace Appeaser.Tests
 
             public void Intercept(IResponseInterceptionContext context)
             {
-                ResponseWasIntercepted = true;   
+                ResponseWasIntercepted = true;
             }
         }
 
@@ -248,6 +269,75 @@ namespace Appeaser.Tests
             public class Response
             {
                 public bool AlteredByInterception { get; set; }
+            }
+        }
+        public class Async
+        {
+            public class Command : IAsyncCommand<UnitType>
+            {
+                private SemaphoreSlim _s;
+
+                public Command()
+                {
+                    _s = new SemaphoreSlim(0, 1);
+                }
+
+                public bool AsynchronousInterceptorHasBeenCalled { get; set; } = false;
+
+
+                public void Release()
+                {
+                    _s.Release();
+                }
+
+                public async Task<bool> WaitAsync(int timeout)
+                {
+                    return await _s.WaitAsync(timeout);
+                }
+
+                public bool Wait(int timeout)
+                {
+                    return _s.Wait(timeout);
+                }
+
+            }
+
+            public class Handler : IAsyncCommandHandler<Command, UnitType>
+            {
+                public async Task<UnitType> Handle(Command command)
+                {
+                    if(!await command.WaitAsync(2000))
+                    {
+                        command.AsynchronousInterceptorHasBeenCalled = true;
+                    }
+
+                    return UnitType.Default;
+                }
+            }
+
+            public class RequestInterceptor : IRequestInterceptor
+            {
+                public bool HasBeenIntercepted { get; set; }
+                public Command Request { get; set; }
+
+                public async Task InterceptAsync(IRequestInterceptionContext context)
+                {
+                    Request = (Command)context.Request;
+                    if (await Request.WaitAsync(5000))
+                    {
+                        HasBeenIntercepted = true;
+
+                    }
+                }
+
+                public void Intercept(IRequestInterceptionContext context)
+                {
+                    Request = (Command)context.Request;
+                    if (Request.Wait(5000))
+                    {
+                        HasBeenIntercepted = true;
+                    }
+                }
             }
         }
     }
