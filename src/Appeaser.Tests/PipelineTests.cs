@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Appeaser.Interception;
 using FakeItEasy;
@@ -60,10 +61,6 @@ namespace Appeaser.Tests
 
             Assert.True(interceptor.RequestWasIntercepted);
             Assert.True(interceptor.ResponseWasIntercepted);
-
-            // Assert interceptor that handles both request and response is not constructed twice
-            A.CallTo(() => _handler.GetHandler(A<Type>.That.IsEqualTo(typeof(Interceptor))))
-                .MustHaveHappened(1, Times.Exactly);
         }
 
         [Fact]
@@ -82,21 +79,54 @@ namespace Appeaser.Tests
             Assert.IsType<ArgumentException>(interceptor.Context.Exception);
         }
 
+        [Fact]
+        public void TestInterceptionInvocationOrder()
+        {
+            var first = new FirstInterceptor();
+            var second = new SecondInterceptor();
+            var settings = new MediatorSettings()
+                .AddInterceptor<FirstInterceptor>()
+                .AddInterceptor<SecondInterceptor>();
+
+            A.CallTo(() => _handler.GetHandler(A<Type>.That.IsEqualTo(typeof(FirstInterceptor)))).Returns(first);
+            A.CallTo(() => _handler.GetHandler(A<Type>.That.IsEqualTo(typeof(SecondInterceptor)))).Returns(second);
+
+            var mediator = new Mediator(_handler, settings);
+
+            mediator.Send(new CommandFeature.Command());
+
+            var requests = first.ContextCopy["RequestInvocation"] as List<string>;
+            var responses = first.ContextCopy["ResponseInvocation"] as List<string>;
+
+            Assert.Equal(new[] { "first", "second" }, requests);
+            Assert.Equal(new[] { "second", "first" }, responses);
+        }
+
         public class Interceptor : IRequestInterceptor, IResponseInterceptor
         {
             public bool RequestWasIntercepted { get; set; }
             public bool ResponseWasIntercepted { get; set; }
 
-            public Task Intercept(IRequestInterceptionContext context)
+            public Task InterceptAsync(IRequestInterceptionContext context)
             {
-                RequestWasIntercepted = true;
+                Intercept(context);
                 return Task.CompletedTask;
             }
 
-            public Task Intercept(IResponseInterceptionContext context)
+            public Task InterceptAsync(IResponseInterceptionContext context)
             {
-                ResponseWasIntercepted = true;
+                Intercept(context);
                 return Task.CompletedTask;
+            }
+
+            public void Intercept(IRequestInterceptionContext context)
+            {
+                RequestWasIntercepted = true;
+            }
+
+            public void Intercept(IResponseInterceptionContext context)
+            {
+                ResponseWasIntercepted = true;   
             }
         }
 
@@ -105,11 +135,16 @@ namespace Appeaser.Tests
             public bool HasBeenIntercepted { get; set; }
             public object Request { get; set; }
 
-            public Task Intercept(IRequestInterceptionContext context)
+            public Task InterceptAsync(IRequestInterceptionContext context)
+            {
+                Intercept(context);
+                return Task.CompletedTask;
+            }
+
+            public void Intercept(IRequestInterceptionContext context)
             {
                 Request = context.Request;
                 HasBeenIntercepted = true;
-                return Task.CompletedTask;
             }
         }
 
@@ -117,15 +152,19 @@ namespace Appeaser.Tests
         {
             public IResponseInterceptionContext Context { get; set; }
 
-            public Task Intercept(IResponseInterceptionContext context)
+            public Task InterceptAsync(IResponseInterceptionContext context)
+            {
+                Intercept(context);
+                return Task.CompletedTask;
+            }
+
+            public void Intercept(IResponseInterceptionContext context)
             {
                 Context = context;
                 if (context.Response is CommandFeature.Response response)
                 {
                     response.AlteredByInterception = true;
                 }
-
-                return Task.CompletedTask;
             }
         }
 
@@ -133,10 +172,56 @@ namespace Appeaser.Tests
         {
             public Exception CaughtException { get; private set; }
 
-            public Task Intercept(IResponseInterceptionContext context)
+            public Task InterceptAsync(IResponseInterceptionContext context)
+            {
+                Intercept(context);
+                return Task.CompletedTask;
+            }
+
+            public void Intercept(IResponseInterceptionContext context)
             {
                 CaughtException = context.Exception;
-                return Task.CompletedTask;
+            }
+        }
+
+        public class FirstInterceptor : NamedInterceptor
+        {
+            public FirstInterceptor() : base("first") { }
+        }
+
+        public class SecondInterceptor : NamedInterceptor
+        {
+            public SecondInterceptor() : base("second") { }
+        }
+
+        public abstract class NamedInterceptor : IRequestInterceptor, IResponseInterceptor
+        {
+            private readonly string _name;
+            public NamedInterceptor(string name) => _name = name;
+
+            public IDictionary<string, object> ContextCopy { get; set; }
+
+            public void Intercept(IRequestInterceptionContext context)
+            {
+                ContextCopy = context.Context;
+                ContextCopy["RequestInvocation"] = AddToList("RequestInvocation", _name);
+            }
+
+            public void Intercept(IResponseInterceptionContext context)
+            {
+                ContextCopy = context.Context;
+                ContextCopy["ResponseInvocation"] = AddToList("ResponseInvocation", _name);
+            }
+
+            public Task InterceptAsync(IRequestInterceptionContext context) => Task.CompletedTask;
+
+            public Task InterceptAsync(IResponseInterceptionContext context) => Task.CompletedTask;
+
+            private List<string> AddToList(string key, string value)
+            {
+                var list = ContextCopy.TryGetValue(key, out object v) && v is List<string> l ? l : new List<string>();
+                list.Add(value);
+                return list;
             }
         }
 

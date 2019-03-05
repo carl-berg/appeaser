@@ -4,6 +4,7 @@ namespace Appeaser.Interception
 {
     public interface IRequestInterceptor
     {
-        Task Intercept(IRequestInterceptionContext context);
+        void Intercept(IRequestInterceptionContext context);
+        Task InterceptAsync(IRequestInterceptionContext context);
     }
 }

@@ -8,14 +8,13 @@ namespace Appeaser.Interception
     internal class MediatorInterceptionScope : IRequestInterceptionContext
     {
         private readonly MediatorInterceptionParameters _config;
-        private IEnumerable<IRequestInterceptor> _requestInterceptors;
 
         public MediatorInterceptionScope(MediatorInterceptionParameters config, object handler, object parameter)
         {
             _config = config;
             HandlerType = handler.GetType();
             RequestType = parameter.GetType();
-            HandlerInstance = handler;
+            Context = new Dictionary<string, object> { { "Handler", handler } };
             Request = parameter;
         }
 
@@ -23,56 +22,59 @@ namespace Appeaser.Interception
 
         public Type HandlerType { get; }
 
-        public object HandlerInstance { get; }
-
         public object Request { get; }
 
-        internal async Task InvokeRequestInterceptors()
-        {
-            _requestInterceptors = _config.RequestInterceptors
-                .Select(type => _config.Resolve(type))
-                .OfType<IRequestInterceptor>().ToList();
-            foreach (var interceptor in _requestInterceptors)
-            {
-                await interceptor.Intercept(this);
-            }
-        }
+        public IDictionary<string, object> Context { get; }
 
-        internal async Task InvokeResponseInterceptors<TResponse>(TResponse response)
+        internal async Task InvokeRequestInterceptorsAsync()
         {
-            var context = new ResponseInterceptionContext(this, typeof(TResponse), response);
-            var interceptors = _config.ResponseInterceptors
-                .Select(ResolveResponseInterceptor)
-                .OfType<IResponseInterceptor>().ToList();
+            var interceptors = ResolveInterceptors<IRequestInterceptor>(x => x.RequestInterceptors);
             foreach (var interceptor in interceptors)
             {
-                await interceptor.Intercept(context);
+                await interceptor.InterceptAsync(this);
             }
         }
 
-        internal async Task InvokeResponseInterceptorsWithException<TResponse>(Exception exception)
+        internal void InvokeRequestInterceptors()
         {
-            var context = new ResponseInterceptionContext(this, typeof(TResponse), exception);
-            var interceptors = _config.ResponseInterceptors
-                .Select(ResolveResponseInterceptor)
-                .OfType<IResponseInterceptor>().ToList();
+            var interceptors = ResolveInterceptors<IRequestInterceptor>(x => x.RequestInterceptors);
             foreach (var interceptor in interceptors)
             {
-                await interceptor.Intercept(context);
+                interceptor.Intercept(this);
             }
         }
 
-        private IResponseInterceptor ResolveResponseInterceptor(Type type)
+        internal void InvokeResponseInterceptors(ResponseInterceptionContext context)
         {
-            var matchingRequestInterceptor = _requestInterceptors
-                .SingleOrDefault(requestInterceptor => requestInterceptor.GetType() == type);
-
-            if (matchingRequestInterceptor != null)
+            var interceptors = ResolveInterceptors<IResponseInterceptor>(x => x.ResponseInterceptors.Reverse());
+            foreach (var interceptor in interceptors)
             {
-                return matchingRequestInterceptor as IResponseInterceptor;
+                interceptor.Intercept(context);
             }
+        }
 
-            return _config.Resolve(type) as IResponseInterceptor;
+        internal async Task InvokeResponseInterceptorsAsync(ResponseInterceptionContext context)
+        {
+            var interceptors = ResolveInterceptors<IResponseInterceptor>(x => x.ResponseInterceptors.Reverse());
+            foreach (var interceptor in interceptors)
+            {
+                await interceptor.InterceptAsync(context);
+            }
+        }
+
+        internal IEnumerable<T> ResolveInterceptors<T>(Func<MediatorInterceptionParameters, IEnumerable<Type>> typedefinitions)
+        {
+            return typedefinitions(_config).Select(type => _config.Resolve(type)).OfType<T>().ToList();
+        }
+
+        internal ResponseInterceptionContext CreateResponseInterceptionContext<TResponse>(object result)
+        {
+            return new ResponseInterceptionContext(this, typeof(TResponse), result);
+        }
+
+        internal ResponseInterceptionContext CreateExceptionInterceptionContext<TResponse>(Exception exception)
+        {
+            return new ResponseInterceptionContext(this, typeof(TResponse), exception);
         }
     }
 }

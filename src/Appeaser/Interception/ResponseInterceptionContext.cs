@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Appeaser.Interception
 {
@@ -27,7 +28,7 @@ namespace Appeaser.Interception
         {
             HandlerType = requestContext.HandlerType;
             RequestType = requestContext.RequestType;
-            HandlerInstance = requestContext.HandlerInstance;
+            Context = requestContext.Context;
             Request = requestContext.Request;
         }
 
@@ -41,8 +42,8 @@ namespace Appeaser.Interception
 
         public Type HandlerType { get; }
 
-        public object HandlerInstance { get; }
-
         public object Request { get; }
+
+        public IDictionary<string, object> Context { get; }
     }
 }

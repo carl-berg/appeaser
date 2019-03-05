@@ -65,10 +65,9 @@ namespace Appeaser.Tests.IntegrationTests
             {
                 public Validator()
                 {
-                    // Async validation... just because
                     RuleFor(x => x.Name).MustAsync(async (val, ct) =>
                     {
-                        await Task.Delay(500);
+                        await Task.Delay(100);
                         return val != null;
                     });
                 }
@@ -99,11 +98,23 @@ namespace Appeaser.Tests.IntegrationTests
                 _factory = factory;
             }
 
-            public async Task Intercept(IRequestInterceptionContext context)
+            public async Task InterceptAsync(IRequestInterceptionContext context)
             {
                 if (_factory.GetValidator(context.RequestType) is IValidator validator)
                 {
                     var result = await validator.ValidateAsync(context.Request);
+                    if (!result.IsValid)
+                    {
+                        throw new ValidationException(result);
+                    }
+                }
+            }
+
+            public void Intercept(IRequestInterceptionContext context)
+            {
+                if (_factory.GetValidator(context.RequestType) is IValidator validator)
+                {
+                    var result = validator.Validate(context.Request);
                     if (!result.IsValid)
                     {
                         throw new ValidationException(result);
