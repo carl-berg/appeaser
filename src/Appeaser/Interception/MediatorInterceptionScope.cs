@@ -14,7 +14,9 @@ namespace Appeaser.Interception
             _config = config;
             HandlerType = handler.GetType();
             RequestType = parameter.GetType();
-            Context = new Dictionary<string, object> { { "Handler", handler } };
+            Context = new Context();
+            Context.Set("Scope", Guid.NewGuid().ToString());
+            Context.Set("Handler", handler);
             Request = parameter;
         }
 
@@ -24,7 +26,13 @@ namespace Appeaser.Interception
 
         public object Request { get; }
 
-        public IDictionary<string, object> Context { get; }
+        internal Context Context { get; }
+
+        public object Get(string key) => Context.Get(key);
+
+        public T Get<T>(string key) => Context.Get<T>(key);
+
+        public void Set<T>(string key, T value) => Context.Set(key, value);
 
         internal async Task InvokeRequestInterceptorsAsync()
         {

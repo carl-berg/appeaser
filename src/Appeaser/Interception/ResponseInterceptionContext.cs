@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace Appeaser.Interception
 {
@@ -12,19 +11,19 @@ namespace Appeaser.Interception
 
     internal class ResponseInterceptionContext : IRequestInterceptionContext, IResponseInterceptionContext
     {
-        public ResponseInterceptionContext(IRequestInterceptionContext requestContext, Type responseType, object response) : this(requestContext)
+        public ResponseInterceptionContext(MediatorInterceptionScope requestContext, Type responseType, object response) : this(requestContext)
         {
             ResponseType = responseType;
             Response = response;
         }
 
-        public ResponseInterceptionContext(IRequestInterceptionContext requestContext, Type responseType, Exception exception) : this(requestContext)
+        public ResponseInterceptionContext(MediatorInterceptionScope requestContext, Type responseType, Exception exception) : this(requestContext)
         {
             ResponseType = responseType;
             Exception = exception;
         }
 
-        private ResponseInterceptionContext(IRequestInterceptionContext requestContext)
+        private ResponseInterceptionContext(MediatorInterceptionScope requestContext)
         {
             HandlerType = requestContext.HandlerType;
             RequestType = requestContext.RequestType;
@@ -44,6 +43,12 @@ namespace Appeaser.Interception
 
         public object Request { get; }
 
-        public IDictionary<string, object> Context { get; }
+        internal IContext Context { get; }
+
+        public object Get(string key) => Context.Get(key);
+
+        public T Get<T>(string key) => Context.Get<T>(key);
+
+        public void Set<T>(string key, T value) => Context.Set(key, value);
     }
 }

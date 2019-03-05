@@ -95,11 +95,12 @@ namespace Appeaser.Tests
 
             mediator.Send(new CommandFeature.Command());
 
-            var requests = first.ContextCopy["RequestInvocation"] as List<string>;
-            var responses = first.ContextCopy["ResponseInvocation"] as List<string>;
+            var requests = first.ContextCopy.Get<List<string>>("RequestInvocation");
+            var responses = first.ContextCopy.Get<List<string>>("ResponseInvocation");
 
             Assert.Equal(new[] { "first", "second" }, requests);
             Assert.Equal(new[] { "second", "first" }, responses);
+            Assert.Equal(first.ContextCopy.Get<string>("Scope"), second.ContextCopy.Get<string>("Scope"));
         }
 
         public class Interceptor : IRequestInterceptor, IResponseInterceptor
@@ -199,29 +200,29 @@ namespace Appeaser.Tests
             private readonly string _name;
             public NamedInterceptor(string name) => _name = name;
 
-            public IDictionary<string, object> ContextCopy { get; set; }
+            public IContext ContextCopy { get; set; }
 
             public void Intercept(IRequestInterceptionContext context)
             {
-                ContextCopy = context.Context;
-                ContextCopy["RequestInvocation"] = AddToList("RequestInvocation", _name);
+                ContextCopy = context;
+                AddToList("RequestInvocation", _name);
             }
 
             public void Intercept(IResponseInterceptionContext context)
             {
-                ContextCopy = context.Context;
-                ContextCopy["ResponseInvocation"] = AddToList("ResponseInvocation", _name);
+                ContextCopy = context;
+                AddToList("ResponseInvocation", _name);
             }
 
             public Task InterceptAsync(IRequestInterceptionContext context) => Task.CompletedTask;
 
             public Task InterceptAsync(IResponseInterceptionContext context) => Task.CompletedTask;
 
-            private List<string> AddToList(string key, string value)
+            private void AddToList(string key, string value)
             {
-                var list = ContextCopy.TryGetValue(key, out object v) && v is List<string> l ? l : new List<string>();
+                var list = ContextCopy.Get<List<string>>(key) ?? new List<string>();
                 list.Add(value);
-                return list;
+                ContextCopy.Set(key, list);
             }
         }
 
