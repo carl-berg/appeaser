@@ -114,13 +114,17 @@ namespace Appeaser.Tests
             var mediator = new Mediator(_handler, settings);
 
             var command = new Async.Command();
-            var t = mediator.Send(command);
+            var task = mediator.Send(command);
+            if (!await command.WaitAsync2(2000))
+            {
+                Assert.False(true);
+            }
+
             command.Release();
-            await t;
+            await task;
 
             Assert.True(interceptor.HasBeenIntercepted);
-            Assert.Same(command, interceptor.Request);
-            Assert.True(command.AsynchronousInterceptorHasBeenCalled);
+            Assert.True(command.HandlerHasBeenInvoked);
         }
 
         public class Interceptor : IRequestInterceptor, IResponseInterceptor
@@ -271,23 +275,30 @@ namespace Appeaser.Tests
                 public bool AlteredByInterception { get; set; }
             }
         }
+
         public class Async
         {
             public class Command : IAsyncCommand<UnitType>
             {
                 private SemaphoreSlim _s;
+                private SemaphoreSlim _s2;
 
                 public Command()
                 {
                     _s = new SemaphoreSlim(0, 1);
+                    _s2 = new SemaphoreSlim(0, 1);
                 }
 
-                public bool AsynchronousInterceptorHasBeenCalled { get; set; } = false;
-
+                public bool HandlerHasBeenInvoked { get; set; } = false;
 
                 public void Release()
                 {
                     _s.Release();
+                }
+
+                public void Release2()
+                {
+                    _s2.Release();
                 }
 
                 public async Task<bool> WaitAsync(int timeout)
@@ -295,20 +306,19 @@ namespace Appeaser.Tests
                     return await _s.WaitAsync(timeout);
                 }
 
-                public bool Wait(int timeout)
+                public async Task<bool> WaitAsync2(int timeout)
                 {
-                    return _s.Wait(timeout);
+                    return await _s2.WaitAsync(timeout);
                 }
-
             }
 
             public class Handler : IAsyncCommandHandler<Command, UnitType>
             {
                 public async Task<UnitType> Handle(Command command)
                 {
-                    if(!await command.WaitAsync(2000))
+                    if (await command.WaitAsync(2000))
                     {
-                        command.AsynchronousInterceptorHasBeenCalled = true;
+                        command.HandlerHasBeenInvoked = true;
                     }
 
                     return UnitType.Default;
@@ -323,21 +333,15 @@ namespace Appeaser.Tests
                 public async Task InterceptAsync(IRequestInterceptionContext context)
                 {
                     Request = (Command)context.Request;
+                    Request.Release2();
                     if (await Request.WaitAsync(5000))
                     {
                         HasBeenIntercepted = true;
-
+                        Request.Release();
                     }
                 }
 
-                public void Intercept(IRequestInterceptionContext context)
-                {
-                    Request = (Command)context.Request;
-                    if (Request.Wait(5000))
-                    {
-                        HasBeenIntercepted = true;
-                    }
-                }
+                public void Intercept(IRequestInterceptionContext context) { }
             }
         }
     }
