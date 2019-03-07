@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Appeaser.Interception;
 using FakeItEasy;
@@ -16,6 +17,8 @@ namespace Appeaser.Tests
             _handler = A.Fake<IMediatorHandlerFactory>();
             A.CallTo(() => _handler.GetHandler(A<Type>.That.IsEqualTo(typeof(ICommandHandler<CommandFeature.Command, CommandFeature.Response>))))
                 .Returns(new CommandFeature.Handler());
+            A.CallTo(() => _handler.GetHandler(A<Type>.That.IsEqualTo(typeof(IAsyncCommandHandler<Async.Command, UnitType>))))
+                .Returns(new Async.Handler());
         }
 
         [Fact]
@@ -103,6 +106,28 @@ namespace Appeaser.Tests
             Assert.Equal(first.ContextCopy.Get<string>("Scope"), second.ContextCopy.Get<string>("Scope"));
         }
 
+        [Fact]
+        public async Task TestInterceptionAsynchronisity()
+        {
+            var interceptor = new Async.RequestInterceptor();
+            A.CallTo(() => _handler.GetHandler(A<Type>.That.IsEqualTo(typeof(Async.RequestInterceptor)))).Returns(interceptor);
+            var settings = new MediatorSettings().AddRequestInterceptor<Async.RequestInterceptor>();
+            var mediator = new Mediator(_handler, settings);
+
+            var command = new Async.Command();
+            var task = mediator.Send(command);
+            if (!await command.WaitAsync2(2000))
+            {
+                Assert.False(true);
+            }
+
+            command.Release();
+            await task;
+
+            Assert.True(interceptor.HasBeenIntercepted);
+            Assert.True(command.HandlerHasBeenInvoked);
+        }
+
         public class Interceptor : IRequestInterceptor, IResponseInterceptor
         {
             public bool RequestWasIntercepted { get; set; }
@@ -127,7 +152,7 @@ namespace Appeaser.Tests
 
             public void Intercept(IResponseInterceptionContext context)
             {
-                ResponseWasIntercepted = true;   
+                ResponseWasIntercepted = true;
             }
         }
 
@@ -249,6 +274,75 @@ namespace Appeaser.Tests
             public class Response
             {
                 public bool AlteredByInterception { get; set; }
+            }
+        }
+
+        public class Async
+        {
+            public class Command : IAsyncCommand<UnitType>
+            {
+                private SemaphoreSlim _s;
+                private SemaphoreSlim _s2;
+
+                public Command()
+                {
+                    _s = new SemaphoreSlim(0, 1);
+                    _s2 = new SemaphoreSlim(0, 1);
+                }
+
+                public bool HandlerHasBeenInvoked { get; set; } = false;
+
+                public void Release()
+                {
+                    _s.Release();
+                }
+
+                public void Release2()
+                {
+                    _s2.Release();
+                }
+
+                public async Task<bool> WaitAsync(int timeout)
+                {
+                    return await _s.WaitAsync(timeout);
+                }
+
+                public async Task<bool> WaitAsync2(int timeout)
+                {
+                    return await _s2.WaitAsync(timeout);
+                }
+            }
+
+            public class Handler : IAsyncCommandHandler<Command, UnitType>
+            {
+                public async Task<UnitType> Handle(Command command)
+                {
+                    if (await command.WaitAsync(2000))
+                    {
+                        command.HandlerHasBeenInvoked = true;
+                    }
+
+                    return UnitType.Default;
+                }
+            }
+
+            public class RequestInterceptor : IRequestInterceptor
+            {
+                public bool HasBeenIntercepted { get; set; }
+                public Command Request { get; set; }
+
+                public async Task InterceptAsync(IRequestInterceptionContext context)
+                {
+                    Request = (Command)context.Request;
+                    Request.Release2();
+                    if (await Request.WaitAsync(5000))
+                    {
+                        HasBeenIntercepted = true;
+                        Request.Release();
+                    }
+                }
+
+                public void Intercept(IRequestInterceptionContext context) { }
             }
         }
     }

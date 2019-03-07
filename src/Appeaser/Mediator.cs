@@ -145,7 +145,7 @@ namespace Appeaser
             }
         }
 
-        public virtual async Task<TResult> Send<TResult>(IAsyncCommand<TResult> command)
+        public virtual Task<TResult> Send<TResult>(IAsyncCommand<TResult> command)
         {
             try
             {
@@ -155,7 +155,7 @@ namespace Appeaser
                     throw new MediatorCommandException("No command handler of type {0} could be found", command.GetType());
                 }
 
-                return await InvokeHandlerAsync<TResult>(handler, command);
+                return InvokeHandlerAsync<TResult>(handler, command);
             }
             catch (Exception ex)
             {
