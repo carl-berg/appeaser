@@ -39,7 +39,7 @@ namespace Appeaser.Interception
             var interceptors = ResolveInterceptors<IRequestInterceptor>(x => x.RequestInterceptors);
             foreach (var interceptor in interceptors)
             {
-                await interceptor.InterceptAsync(this);
+                await interceptor.InterceptAsync(this).ConfigureAwait(false);
             }
         }
 
