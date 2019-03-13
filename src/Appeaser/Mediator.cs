@@ -2,20 +2,32 @@ using System;
 using System.Reflection;
 using System.Threading.Tasks;
 using Appeaser.Exceptions;
+using Appeaser.Interception;
 
 namespace Appeaser
 {
     public class Mediator : IMediator, ISimpleMediator
     {
-        protected readonly IMediatorHandlerFactory HandlerFactory;
+        protected readonly IMediatorHandlerFactory Resolver;
         protected readonly IMediatorSettings Settings;
+        private readonly MediatorInterceptor _interceptor;
 
         public Mediator(IMediatorHandlerFactory handlerFactory) : this(handlerFactory, new MediatorSettings()) { }
 
+        public Mediator(IMediatorResolver resolver) : this(resolver, new MediatorSettings()) { }
+
         public Mediator(IMediatorHandlerFactory handlerFactory, IMediatorSettings settings)
         {
-            HandlerFactory = handlerFactory;
+            Resolver = handlerFactory;
             Settings = settings ?? new MediatorSettings();
+            _interceptor = new MediatorInterceptor(settings, handlerFactory);
+        }
+
+        public Mediator(IMediatorResolver resolver, IMediatorSettings settings)
+        {
+            Resolver = resolver;
+            Settings = settings ?? new MediatorSettings();
+            _interceptor = new MediatorInterceptor(settings, resolver);
         }
 
         public virtual TResponse Request<TResponse>(IQuery<TResponse> query)
@@ -41,7 +53,7 @@ namespace Appeaser
             }
         }
 
-        public virtual async Task<TResponse> Request<TResponse>(IAsyncQuery<TResponse> query)
+        public virtual Task<TResponse> Request<TResponse>(IAsyncQuery<TResponse> query)
         {
             try
             {
@@ -51,7 +63,7 @@ namespace Appeaser
                     throw new MediatorQueryException("No query handler of type {0} could be found", query.GetType());
                 }
 
-                return await InvokeHandlerAsync<TResponse>(handler, query);
+                return InvokeHandlerAsync<TResponse>(handler, query);
             }
             catch (Exception ex)
             {
@@ -87,7 +99,7 @@ namespace Appeaser
             }
         }
 
-        public virtual async Task<TResponse> Request<TResponse>(IAsyncRequest<TResponse> request)
+        public virtual Task<TResponse> Request<TResponse>(IAsyncRequest<TResponse> request)
         {
             try
             {
@@ -97,7 +109,7 @@ namespace Appeaser
                     throw new MediatorRequestException("No request handler of type {0} could be found", request.GetType());
                 }
 
-                return await InvokeHandlerAsync<TResponse>(handler, request);
+                return InvokeHandlerAsync<TResponse>(handler, request);
             }
             catch (Exception ex)
             {
@@ -133,7 +145,7 @@ namespace Appeaser
             }
         }
 
-        public virtual async Task<TResult> Send<TResult>(IAsyncCommand<TResult> command)
+        public virtual Task<TResult> Send<TResult>(IAsyncCommand<TResult> command)
         {
             try
             {
@@ -143,7 +155,7 @@ namespace Appeaser
                     throw new MediatorCommandException("No command handler of type {0} could be found", command.GetType());
                 }
 
-                return await InvokeHandlerAsync<TResult>(handler, command);
+                return InvokeHandlerAsync<TResult>(handler, command);
             }
             catch (Exception ex)
             {
@@ -161,33 +173,31 @@ namespace Appeaser
             var requestType = typeof(TResponse);
             var parameterType = parameter.GetType();
             var requestingHandlerType = handlerType.MakeGenericType(parameterType, requestType);
-            return HandlerFactory.GetHandler(requestingHandlerType);
+            return Resolver.GetHandler(requestingHandlerType);
         }
 
         protected virtual TReturn InvokeHandler<TReturn>(object handler, object parameter)
         {
-            var method = handler.GetType().GetRuntimeMethod("Handle", new[] { parameter.GetType() });
-            try
-            { 
-                return (TReturn)method.Invoke(handler, new[] { parameter });
-            }
-            catch (TargetInvocationException ex)
-            {
-                throw ex.InnerException;
-            }
+            return _interceptor.InvokeHandler(
+                handler, 
+                parameter, 
+                scope =>
+                {
+                    var method = scope.HandlerType.GetRuntimeMethod("Handle", new[] { scope.RequestType });
+                    return (TReturn)method.Invoke(handler, new[] { parameter });
+                });
         }
 
-        protected virtual async Task<TReturn> InvokeHandlerAsync<TReturn>(object handler, object parameter)
-        {
-            var method = handler.GetType().GetRuntimeMethod("Handle", new[] { parameter.GetType() });
-            try
-            { 
-                return await(Task<TReturn>)method.Invoke(handler, new[] { parameter });
-            }
-            catch (TargetInvocationException ex)
-            {
-                throw ex.InnerException;
-            }
+        protected virtual Task<TReturn> InvokeHandlerAsync<TReturn>(object handler, object parameter)
+        {          
+            return _interceptor.InvokeHandlerAsync(
+                handler, 
+                parameter, 
+                scope =>
+                {
+                    var method = scope.HandlerType.GetRuntimeMethod("Handle", new[] { scope.RequestType });
+                    return (Task<TReturn>)method.Invoke(handler, new[] { parameter });
+                });
         }
     }
 }
