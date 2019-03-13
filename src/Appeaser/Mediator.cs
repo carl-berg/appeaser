@@ -53,7 +53,7 @@ namespace Appeaser
             }
         }
 
-        public virtual async Task<TResponse> Request<TResponse>(IAsyncQuery<TResponse> query)
+        public virtual Task<TResponse> Request<TResponse>(IAsyncQuery<TResponse> query)
         {
             try
             {
@@ -63,7 +63,7 @@ namespace Appeaser
                     throw new MediatorQueryException("No query handler of type {0} could be found", query.GetType());
                 }
 
-                return await InvokeHandlerAsync<TResponse>(handler, query);
+                return InvokeHandlerAsync<TResponse>(handler, query);
             }
             catch (Exception ex)
             {
@@ -99,7 +99,7 @@ namespace Appeaser
             }
         }
 
-        public virtual async Task<TResponse> Request<TResponse>(IAsyncRequest<TResponse> request)
+        public virtual Task<TResponse> Request<TResponse>(IAsyncRequest<TResponse> request)
         {
             try
             {
@@ -109,7 +109,7 @@ namespace Appeaser
                     throw new MediatorRequestException("No request handler of type {0} could be found", request.GetType());
                 }
 
-                return await InvokeHandlerAsync<TResponse>(handler, request);
+                return InvokeHandlerAsync<TResponse>(handler, request);
             }
             catch (Exception ex)
             {
