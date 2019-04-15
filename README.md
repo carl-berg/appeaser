@@ -175,3 +175,59 @@ The appeaser library is ment to be used together with dependency injection. As I
             });			
         }
 	}
+
+## Interception
+Appeaser provides an api for intercepting requests, starting with version 2.2. This can for example be used for cross cutting concerns like Logging, Validation, Authorization or whatever you want to wrap around your request/response pipeline. Interceptors can be added via mediator settings like so:
+
+	var settings = new MediatorSettings()
+        .AddRequestInterceptor<RequestInterceptor>()
+        .AddResponseInterceptor<ResponseInterceptor>()
+        .AddInterceptor<RequestAndResponseInterceptor>();
+
+    var mediator = new Mediator(handlerFactory, settings);
+
+Any interceptor dependencies will be resolved via the handler factory. If you have a need to separate handler and interceptor resolution there's an option to supply a `IMediatorResolver` instead of a `IMediatorHandlerFactory`.
+
+An interceptor can be implemented like this:
+
+    public class LoggingInterceptor : IRequestInterceptor, IReponseInterceptor
+    {
+        private ILog _log;
+        public LoggingInterceptor(ILog log) => _log = log;
+
+        public Task InterceptAsync(IRequestInterceptionContext context)
+        {
+            Intercept(context);
+            return Task.CompletedTask;
+        }
+
+        public Task InterceptAsync(IResponseInterceptionContext context)
+        {
+            Intercept(context);
+            return Task.CompletedTask;
+        }
+
+        public void Intercept(IRequestInterceptionContext context)
+        {
+            context.Set("Start", DateTime.Now);
+            _log.Debug("Executing {Request}", context.Request);
+        }
+
+        public void Intercept(IResponseInterceptionContext context)
+        {
+            if (context.Exception is null)
+            {
+                _log.Debug(
+                    "Executed {Request} successfully and returned {Response} after {Elapsed}", 
+                    context.Request, 
+                    context.Response, 
+                    DateTime.Now - context.Get<DateTime>("Start"));
+            }
+            else
+            {
+                _log.Debug("Execution of {Request} failed with {Exception}", context.Exception);
+            }
+        }
+    }
+
+When implementing interceptors that are invoked both on request and response, _be aware_ that a new instance of the class is created on both request and response invocations. If you need to keep state between these invocations, the context provides a key/value -store to store whatever you need to share in between invocations.
