@@ -177,7 +177,7 @@ The appeaser library is ment to be used together with dependency injection. As I
 	}
 
 ## Interception
-Appeaser provides an api for intercepting requests, starting with version 2.2. This can for example be used for cross cutting concerns like Logging, Validation, Authorization or whatever you want to wrap around your request/response pipeline. Interceptors can be added via mediator settings like so:
+Appeaser provides an api for intercepting requests, starting with version 2.2. This can be used for cross cutting concerns like Logging, Validation, Authorization or whatever you want to wrap around your request/response pipeline. Interceptors can be added via mediator settings like so:
 
 	var settings = new MediatorSettings()
         .AddRequestInterceptor<RequestInterceptor>()
@@ -230,4 +230,4 @@ An interceptor can be implemented like this:
         }
     }
 
-When implementing interceptors that are invoked both on request and response, _be aware_ that a new instance of the class is created on both request and response invocations. If you need to keep state between these invocations, the context provides a key/value -store to store whatever you need to share in between invocations.
+When implementing interceptors that are invoked both on request and response, _be aware_ that a new instance of the class is created on both request and response invocations. If you need to keep state between these invocations, the context provides a key/value -store to store whatever you need to share in between invocations (see example above).
