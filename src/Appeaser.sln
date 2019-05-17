@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27004.2008
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28803.352
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Appeaser", "Appeaser\Appeaser.csproj", "{7DF6E70B-E97E-4253-B265-863A112207EA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Appeaser.Tests", "Appeaser.Tests\Appeaser.Tests.csproj", "{A41C63E8-60E5-4A4E-837B-E1A2D1AF2EED}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Appeaser.Microsoft.DependencyInjection", "Appeaser.Microsoft.DependencyInjection\Appeaser.Microsoft.DependencyInjection.csproj", "{4418F4D3-A5B2-49ED-AB08-9AD4FB0CE642}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{A41C63E8-60E5-4A4E-837B-E1A2D1AF2EED}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A41C63E8-60E5-4A4E-837B-E1A2D1AF2EED}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A41C63E8-60E5-4A4E-837B-E1A2D1AF2EED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4418F4D3-A5B2-49ED-AB08-9AD4FB0CE642}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4418F4D3-A5B2-49ED-AB08-9AD4FB0CE642}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4418F4D3-A5B2-49ED-AB08-9AD4FB0CE642}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4418F4D3-A5B2-49ED-AB08-9AD4FB0CE642}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
