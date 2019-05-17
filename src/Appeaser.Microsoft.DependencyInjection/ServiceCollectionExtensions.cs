@@ -63,19 +63,25 @@ namespace Appeaser.Microsoft.DependencyInjection
 
             var scanner = new TypeScanner(assemblies);
 
-            var handlers = scanner.ResolveOpenTypes(typeof(IRequestHandler<,>));
+            FindAndRegistersHandlersOfOpenType(scanner, services, typeof(IRequestHandler<,>));
+            FindAndRegistersHandlersOfOpenType(scanner, services, typeof(IQueryHandler<,>));
+            FindAndRegistersHandlersOfOpenType(scanner, services, typeof(ICommandHandler<,>));
+
+            FindAndRegistersHandlersOfOpenType(scanner, services, typeof(IAsyncRequestHandler<,>));
+            FindAndRegistersHandlersOfOpenType(scanner, services, typeof(IAsyncQueryHandler<,>));
+            FindAndRegistersHandlersOfOpenType(scanner, services, typeof(IAsyncCommandHandler<,>));
+
+            return services;
+        }
+
+
+        private static void FindAndRegistersHandlersOfOpenType(TypeScanner scanner, IServiceCollection services, Type openType)
+        {
+            var handlers = scanner.ResolveOpenTypes(openType);
             foreach (var handler in handlers)
             {
                 services.AddTransient(handler.InterfaceType, handler.HandlerType);
             }
-
-            var asyncHandlers = scanner.ResolveOpenTypes(typeof(IAsyncRequestHandler<,>));
-            foreach (var handler in asyncHandlers)
-            {
-                services.AddTransient(handler.InterfaceType, handler.HandlerType);
-            }
-
-            return services;
         }
     }
 }
