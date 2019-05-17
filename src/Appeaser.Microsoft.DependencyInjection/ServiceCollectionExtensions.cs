@@ -19,6 +19,7 @@ namespace Appeaser.Microsoft.DependencyInjection
             {
                 assemblies = new[] { Assembly.GetCallingAssembly() };
             }
+
             return AddAppeaser(services, (MediatorSettings)null, assemblies);
         }
 
@@ -27,12 +28,13 @@ namespace Appeaser.Microsoft.DependencyInjection
         /// </summary>
         /// <param name="assemblies">Assemblies containing handlers (if none provided, the calling assembly will be added by default)</param>
         [MethodImpl(MethodImplOptions.NoInlining)]
-        public static IServiceCollection AddAppeaser(this IServiceCollection services, Action<MediatorSettings> configure, params Assembly[] assemblies)
+        public static IServiceCollection AddAppeaser(this IServiceCollection services, Action<IMediatorSettings> configure, params Assembly[] assemblies)
         {
             if (assemblies is null || !assemblies.Any())
             {
                 assemblies = new[] { Assembly.GetCallingAssembly() };
             }
+
             var settings = new MediatorSettings();
             configure(settings);
             return AddAppeaser(services, settings, assemblies);
@@ -43,7 +45,7 @@ namespace Appeaser.Microsoft.DependencyInjection
         /// </summary>
         /// <param name="assemblies">Assemblies containing handlers (if none provided, the calling assembly will be added by default)</param>
         [MethodImpl(MethodImplOptions.NoInlining)]
-        public static IServiceCollection AddAppeaser(this IServiceCollection services, MediatorSettings settings, params Assembly[] assemblies)
+        public static IServiceCollection AddAppeaser(this IServiceCollection services, IMediatorSettings settings, params Assembly[] assemblies)
         {
             if (assemblies is null || !assemblies.Any())
             {
@@ -52,7 +54,7 @@ namespace Appeaser.Microsoft.DependencyInjection
 
             if (settings != null)
             {
-                services.AddSingleton(settings);
+                services.AddSingleton<IMediatorSettings>(settings);
             }
             
             services.AddScoped<IMediatorResolver, MicrosoftDependencyInjectionMediatorResolver>();

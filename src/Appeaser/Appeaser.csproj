@@ -1,21 +1,27 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFrameworks>netstandard1.0;net45</TargetFrameworks>
-    <Copyright>Copyright (c) 2017 Carl Berg</Copyright>
-    <VersionPrefix>2.2.0</VersionPrefix>
-    <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
-  </PropertyGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.0' ">
-    <PackageReference Include="System.Reflection" Version="4.3.0" />
-    <PackageReference Include="System.Reflection.Extensions" Version="4.3.0" />
-    <PackageReference Include="System.Threading" Version="4.3.0" />
-    <PackageReference Include="System.Collections" Version="4.3.0" />
-    <PackageReference Include="System.Linq" Version="4.3.0" />
-  </ItemGroup>
+    <PropertyGroup>
+        <TargetFrameworks>netstandard1.0;net45</TargetFrameworks>
+        <Copyright>Copyright (c) 2017 Carl Berg</Copyright>
+        <VersionPrefix>2.2.0</VersionPrefix>
+        <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
+    </PropertyGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Linq" />
-  </ItemGroup>  
+    <PropertyGroup>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    </PropertyGroup>
+
+    <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.0' ">
+        <PackageReference Include="System.Reflection" Version="4.3.0" />
+        <PackageReference Include="System.Reflection.Extensions" Version="4.3.0" />
+        <PackageReference Include="System.Threading" Version="4.3.0" />
+        <PackageReference Include="System.Collections" Version="4.3.0" />
+        <PackageReference Include="System.Linq" Version="4.3.0" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
+        <Reference Include="System" />
+        <Reference Include="System.Core" />
+        <Reference Include="System.Linq" />
+    </ItemGroup>
 </Project>
