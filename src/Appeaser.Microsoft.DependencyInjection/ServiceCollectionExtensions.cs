@@ -28,7 +28,7 @@ namespace Appeaser.Microsoft.DependencyInjection
         /// </summary>
         /// <param name="assemblies">Assemblies containing handlers (if none provided, the calling assembly will be added by default)</param>
         [MethodImpl(MethodImplOptions.NoInlining)]
-        public static IServiceCollection AddAppeaser(this IServiceCollection services, Action<IMediatorSettings> configure, params Assembly[] assemblies)
+        public static IServiceCollection AddAppeaser(this IServiceCollection services, Action<MediatorSettings> configure, params Assembly[] assemblies)
         {
             if (assemblies is null || !assemblies.Any())
             {
