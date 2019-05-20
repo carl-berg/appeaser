@@ -53,21 +53,41 @@ namespace Appeaser.Tests.IntegrationTests
         }
 
         [Fact]
-        public void ProviderCanResolveRequestHandler()
+        public void ProviderCanResolveRequestHandlers()
         {
             var resolver = _provider.GetService<IMediatorResolver>();
             var requestHandler = resolver.GetHandler(typeof(IRequestHandler<TestRequestFeature.Request, UnitType>));
             var asyncRequestHandler = resolver.GetHandler(typeof(IAsyncRequestHandler<TestRequestFeature.AsyncRequest, UnitType>));
-            var queryHandler = resolver.GetHandler(typeof(IQueryHandler<TestQueryFeature.Request, UnitType>));
-            var asyncQueryHandler = resolver.GetHandler(typeof(IAsyncQueryHandler<TestQueryFeature.AsyncRequest, UnitType>));
-            var commandHandler = resolver.GetHandler(typeof(ICommandHandler<TestCommandFeature.Request, UnitType>));
-            var asyncCommandHandler = resolver.GetHandler(typeof(IAsyncCommandHandler<TestCommandFeature.AsyncRequest, UnitType>));
             Assert.NotNull(requestHandler);
             Assert.NotNull(asyncRequestHandler);
+        }
+
+        [Fact]
+        public void ProviderCanResolveQueryHandlers()
+        {
+            var resolver = _provider.GetService<IMediatorResolver>();
+            var queryHandler = resolver.GetHandler(typeof(IQueryHandler<TestQueryFeature.Request, UnitType>));
+            var asyncQueryHandler = resolver.GetHandler(typeof(IAsyncQueryHandler<TestQueryFeature.AsyncRequest, UnitType>));
             Assert.NotNull(queryHandler);
             Assert.NotNull(asyncQueryHandler);
+        }
+
+        [Fact]
+        public void ProviderCanResolveCommandHandlers()
+        {
+            var resolver = _provider.GetService<IMediatorResolver>();
+            var commandHandler = resolver.GetHandler(typeof(ICommandHandler<TestCommandFeature.Request, UnitType>));
+            var asyncCommandHandler = resolver.GetHandler(typeof(IAsyncCommandHandler<TestCommandFeature.AsyncRequest, UnitType>));
             Assert.NotNull(commandHandler);
             Assert.NotNull(asyncCommandHandler);
+        }
+
+        [Fact]
+        public void ProviderCanResolveMultipleHandlersOfSameTypeInTheSameClass()
+        {
+            var resolver = _provider.GetService<IMediatorResolver>();
+            var requestHandler = resolver.GetHandler(typeof(IRequestHandler<TestRequestFeature.Request2, UnitType>));
+            Assert.NotNull(requestHandler);
         }
 
         [Fact]
@@ -78,14 +98,17 @@ namespace Appeaser.Tests.IntegrationTests
             Assert.Equal(UnitType.Default, response);
         }
 
+
         public class TestRequestFeature
         {
             public class Request : IRequest<UnitType> { }
+            public class Request2 : IRequest<UnitType> { }
             public class AsyncRequest : IAsyncRequest<UnitType> { }
 
-            public class Handler : IRequestHandler<Request, UnitType>, IAsyncRequestHandler<AsyncRequest, UnitType>
+            public class Handler : IRequestHandler<Request, UnitType>, IAsyncRequestHandler<AsyncRequest, UnitType>, IRequestHandler<Request2, UnitType>
             {
                 public UnitType Handle(Request request) => UnitType.Default;
+                public UnitType Handle(Request2 request) => UnitType.Default;
                 public Task<UnitType> Handle(AsyncRequest request) => Task.FromResult(UnitType.Default);
             }
         }

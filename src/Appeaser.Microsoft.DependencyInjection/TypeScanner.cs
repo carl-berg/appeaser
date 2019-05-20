@@ -24,7 +24,6 @@ namespace Appeaser.Microsoft.DependencyInjection
                         if (@interface.IsGenericType && openType.IsAssignableFrom(@interface.GetGenericTypeDefinition()))
                         {
                             yield return new ResolvedHandler(@interface, type.AsType());
-                            break;
                         }
                     }
                 }
