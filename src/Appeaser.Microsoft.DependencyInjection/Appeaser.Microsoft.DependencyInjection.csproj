@@ -3,7 +3,7 @@
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
         <Copyright>Copyright (c) 2019 Carl Berg</Copyright>
-        <VersionPrefix>1.0.4</VersionPrefix>
+        <VersionPrefix>1.1.0-rc.1</VersionPrefix>
         <Authors>Carl Berg</Authors>
         <Description>Appeaser .NET Core DI extension</Description>
         <PackageLicenseUrl>http://www.opensource.org/licenses/mit-license.php</PackageLicenseUrl>
@@ -20,6 +20,7 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="2.2.0" />
+        <PackageReference Include="Microsoft.Extensions.Options" Version="2.2.0" />
     </ItemGroup>
 
     <ItemGroup>
