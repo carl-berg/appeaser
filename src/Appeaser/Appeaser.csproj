@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>netstandard1.0;net45</TargetFrameworks>
+        <TargetFrameworks>netstandard2.0;netstandard1.0;net45</TargetFrameworks>
         <Authors>Carl Berg</Authors>
         <Copyright>Copyright (c) 2017 Carl Berg</Copyright>
-        <VersionPrefix>2.2.0</VersionPrefix>
+        <VersionPrefix>2.2.1</VersionPrefix>
         <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
         <Description>Appeaser, the appeasing mediator</Description>
         <PackageLicenseUrl>http://www.opensource.org/licenses/mit-license.php</PackageLicenseUrl>
