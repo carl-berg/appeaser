@@ -38,6 +38,7 @@ steps:
     outputDir: $(Build.ArtifactStagingDirectory)
     projects: '**/Appeaser.csproj'
     arguments: '--configuration $(buildConfiguration)'
+    workingDirectory: './src/Appeaser'
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish artefacts'
