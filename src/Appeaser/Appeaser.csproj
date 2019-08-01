@@ -4,7 +4,7 @@
         <Authors>Carl Berg</Authors>
         <Copyright>Copyright (c) 2017 Carl Berg</Copyright>
         <VersionPrefix>2.2.1</VersionPrefix>
-        <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
+        <DisableImplicitFrameworkReferences Condition=" '$(TargetFramework)' == 'net45' ">true</DisableImplicitFrameworkReferences>
         <Description>Appeaser, the appeasing mediator</Description>
         <PackageLicenseUrl>http://www.opensource.org/licenses/mit-license.php</PackageLicenseUrl>
         <PackageProjectUrl>https://github.com/carl-berg/appeaser</PackageProjectUrl>

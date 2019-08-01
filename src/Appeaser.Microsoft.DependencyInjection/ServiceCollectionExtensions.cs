@@ -9,15 +9,15 @@ namespace Appeaser.Microsoft.DependencyInjection
 {
     public static class ServiceCollectionExtensions
     {
-        /// <summary>
-        /// Adds Appeaser IMediator, ISimpleMediator and all handlers, in provided assemblies, to service collection
-        /// </summary>
-        /// <param name="assemblies">Assemblies containing handlers (if none provided, the calling assembly will be added by default)</param>
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        public static IServiceCollection AddAppeaser(this IServiceCollection services, params Assembly[] assemblies)
-        {
-            return AddAppeaser(services, null, assemblies);
-        }
+        ///// <summary>
+        ///// Adds Appeaser IMediator, ISimpleMediator and all handlers, in provided assemblies, to service collection
+        ///// </summary>
+        ///// <param name="assemblies">Assemblies containing handlers (if none provided, the calling assembly will be added by default)</param>
+        //[MethodImpl(MethodImplOptions.NoInlining)]
+        //public static IServiceCollection AddAppeaser(this IServiceCollection services, params Assembly[] assemblies)
+        //{
+        //    return AddAppeaser(services, null, assemblies);
+        //}
 
 
         /// <summary>
@@ -32,11 +32,13 @@ namespace Appeaser.Microsoft.DependencyInjection
                 assemblies = new[] { Assembly.GetCallingAssembly() };
             }
 
-            if(configureSettings != null)
+            services.AddOptions<MediatorSettings>();
+
+            if (configureSettings != null)
             {
                 services.Configure(configureSettings);
             }
-
+            
             services.AddScoped<IMediatorSettings>(s => s.GetService<IOptions<MediatorSettings>>().Value);
             services.AddScoped<IMediatorResolver, MicrosoftDependencyInjectionMediatorResolver>();
             services.AddScoped<IMediator, Mediator>();
