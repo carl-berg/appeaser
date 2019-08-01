@@ -3,10 +3,10 @@
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
         <Copyright>Copyright (c) 2019 Carl Berg</Copyright>
-        <VersionPrefix>1.0.4</VersionPrefix>
+        <VersionPrefix>1.1.0-rc.1</VersionPrefix>
         <Authors>Carl Berg</Authors>
         <Description>Appeaser .NET Core DI extension</Description>
-        <PackageLicenseUrl>http://www.opensource.org/licenses/mit-license.php</PackageLicenseUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageProjectUrl>https://github.com/carl-berg/appeaser</PackageProjectUrl>
         <PackageIconUrl>https://raw.githubusercontent.com/carl-berg/appeaser/master/res/icon_128.png</PackageIconUrl>
         <PackageTags>Appeaser</PackageTags>
@@ -15,11 +15,11 @@
     <PropertyGroup>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="2.2.0" />
+        <PackageReference Include="Microsoft.Extensions.Options" Version="2.2.0" />
     </ItemGroup>
 
     <ItemGroup>
