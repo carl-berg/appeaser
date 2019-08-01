@@ -6,7 +6,7 @@
         <VersionPrefix>1.1.0-rc.1</VersionPrefix>
         <Authors>Carl Berg</Authors>
         <Description>Appeaser .NET Core DI extension</Description>
-        <PackageLicenseUrl>http://www.opensource.org/licenses/mit-license.php</PackageLicenseUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageProjectUrl>https://github.com/carl-berg/appeaser</PackageProjectUrl>
         <PackageIconUrl>https://raw.githubusercontent.com/carl-berg/appeaser/master/res/icon_128.png</PackageIconUrl>
         <PackageTags>Appeaser</PackageTags>
@@ -15,7 +15,6 @@
     <PropertyGroup>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
 
     <ItemGroup>
