@@ -1,0 +1,32 @@
+# ASP.NET Core
+# Build and test ASP.NET Core projects targeting .NET Core.
+# Add steps that run tests, create a NuGet package, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+
+trigger:
+  tags:
+    include:
+    - 'microsoft-dependency-injection-*'
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  buildConfiguration: 'Release'
+  project: 'Appeaser.Microsoft.DependencyInjection'
+
+steps:
+
+- task: DotNetCoreCLI@2
+  displayName: 'Run tests'
+  inputs:
+    command: test
+    projects: '**/*Tests.csproj'
+    arguments: '--configuration $(buildConfiguration)'
+
+- script: dotnet pack --output $(Build.ArtifactStagingDirectory) --configuration $(buildConfiguration)
+  displayName: 'Pack'
+  workingDirectory: './src/$(project)'
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish artefacts'
