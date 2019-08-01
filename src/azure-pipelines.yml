@@ -31,14 +31,9 @@ steps:
   displayName: 'Build'
   workingDirectory: './src/Appeaser'
 
-- task: DotNetCoreCLI@2
+- script: dotnet pack --output $(Build.ArtifactStagingDirectory) --configuration $(buildConfiguration)
   displayName: 'Pack'
-  inputs:
-    command: pack
-    outputDir: $(Build.ArtifactStagingDirectory)
-    projects: '**/Appeaser.csproj'
-    arguments: '--configuration $(buildConfiguration)'
-    workingDirectory: './src/Appeaser'
+  workingDirectory: './src/Appeaser'
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish artefacts'
