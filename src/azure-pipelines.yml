@@ -15,21 +15,11 @@ variables:
 steps:
 
 - task: DotNetCoreCLI@2
-  displayName: 'Restore'
-  inputs:
-    command: restore
-    projects: '**/*.csproj'
-
-- task: DotNetCoreCLI@2
   displayName: 'Run tests'
   inputs:
     command: test
     projects: '**/*Tests.csproj'
     arguments: '--configuration $(buildConfiguration)'
-
-- script: dotnet build
-  displayName: 'Build'
-  workingDirectory: './src/Appeaser'
 
 - script: dotnet pack --output $(Build.ArtifactStagingDirectory) --configuration $(buildConfiguration)
   displayName: 'Pack'
