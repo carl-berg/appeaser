@@ -18,6 +18,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="ATypeScanner" Version="0.1.1" />
         <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="2.2.0" />
         <PackageReference Include="Microsoft.Extensions.Options" Version="2.2.0" />
     </ItemGroup>

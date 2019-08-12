@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using ATypeScanner;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
@@ -9,17 +10,6 @@ namespace Appeaser.Microsoft.DependencyInjection
 {
     public static class ServiceCollectionExtensions
     {
-        ///// <summary>
-        ///// Adds Appeaser IMediator, ISimpleMediator and all handlers, in provided assemblies, to service collection
-        ///// </summary>
-        ///// <param name="assemblies">Assemblies containing handlers (if none provided, the calling assembly will be added by default)</param>
-        //[MethodImpl(MethodImplOptions.NoInlining)]
-        //public static IServiceCollection AddAppeaser(this IServiceCollection services, params Assembly[] assemblies)
-        //{
-        //    return AddAppeaser(services, null, assemblies);
-        //}
-
-
         /// <summary>
         /// Adds Appeaser IMediator, ISimpleMediator and all handlers, in provided assemblies, to service collection
         /// </summary>
@@ -60,10 +50,10 @@ namespace Appeaser.Microsoft.DependencyInjection
 
         private static void FindAndRegistersHandlersOfOpenType(TypeScanner scanner, IServiceCollection services, Type openType)
         {
-            var handlers = scanner.ResolveOpenTypes(openType);
+            var handlers = scanner.FindClosingImplementationsOf(openType);
             foreach (var handler in handlers)
             {
-                services.AddTransient(handler.InterfaceType, handler.HandlerType);
+                services.AddTransient(handler.GenericType, handler.ConcreteType);
             }
         }
     }
