@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -44,9 +45,22 @@ namespace Appeaser.Interception
             var scope = new MediatorInterceptionScope(_config, handler, parameter);
             try
             {
-                await scope.InvokeRequestInterceptorsAsync();
+                // Temporary fix to solve activity scoping, see https://github.com/dotnet/corefx/issues/41228
+                foreach (var interceptor in _config.RequestInterceptors.Select(_config.Resolve).OfType<IRequestInterceptor>())
+                {
+                    await interceptor.InterceptAsync(scope);
+                }
+                //await scope.InvokeRequestInterceptorsAsync();
+
                 var result = await invocation(scope);
-                await scope.InvokeResponseInterceptorsAsync(scope.CreateResponseInterceptionContext<TResponse>(result));
+
+                // Temporary fix to solve activity scoping, see https://github.com/dotnet/corefx/issues/41228
+                foreach (var interceptor in _config.ResponseInterceptors.Select(_config.Resolve).OfType<IResponseInterceptor>())
+                {
+                    await interceptor.InterceptAsync(scope.CreateResponseInterceptionContext<TResponse>(result));
+                }
+                //await scope.InvokeResponseInterceptorsAsync(scope.CreateResponseInterceptionContext<TResponse>(result));
+
                 return result;
             }
             catch (Exception ex)

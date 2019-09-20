@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Appeaser.Interception;
 using FakeItEasy;
+using Shouldly;
 using Xunit;
 
 namespace Appeaser.Tests
@@ -19,6 +21,10 @@ namespace Appeaser.Tests
                 .Returns(new CommandFeature.Handler());
             A.CallTo(() => _handler.GetHandler(A<Type>.That.IsEqualTo(typeof(IAsyncCommandHandler<Async.Command, UnitType>))))
                 .Returns(new Async.Handler());
+            A.CallTo(() => _handler.GetHandler(A<Type>.That.IsEqualTo(typeof(IAsyncRequestHandler<DiagnosticActivity.AsyncRequest, string>))))
+                .Returns(new DiagnosticActivity.Handler());
+            A.CallTo(() => _handler.GetHandler(A<Type>.That.IsEqualTo(typeof(IRequestHandler<DiagnosticActivity.Request, string>))))
+                .Returns(new DiagnosticActivity.Handler());
         }
 
         [Fact]
@@ -126,6 +132,38 @@ namespace Appeaser.Tests
 
             Assert.True(interceptor.HasBeenIntercepted);
             Assert.True(command.HandlerHasBeenInvoked);
+        }
+
+        [Fact]
+        public void TestDiagnosticActivityInterception()
+        {
+            var rootActivity = new Activity("Root").Start();
+            var interceptor = new DiagnosticActivity.Interceptor();
+            A.CallTo(() => _handler.GetHandler(A<Type>.That.IsEqualTo(typeof(DiagnosticActivity.Interceptor)))).Returns(interceptor);
+            var settings = new MediatorSettings().AddInterceptor<DiagnosticActivity.Interceptor>();
+            var mediator = new Mediator(_handler, settings);
+
+            var activityId = mediator.Request(new DiagnosticActivity.Request());
+
+            activityId.ShouldNotBe(rootActivity.Id);
+
+            rootActivity.Stop();
+        }
+
+        [Fact]
+        public async Task TestAsyncDiagnosticActivityInterception()
+        {
+            var rootActivity = new Activity("Root").Start();
+            var interceptor = new DiagnosticActivity.Interceptor();
+            A.CallTo(() => _handler.GetHandler(A<Type>.That.IsEqualTo(typeof(DiagnosticActivity.Interceptor)))).Returns(interceptor);
+            var settings = new MediatorSettings().AddInterceptor<DiagnosticActivity.Interceptor>();
+            var mediator = new Mediator(_handler, settings);
+
+            var activityId = await mediator.Request(new DiagnosticActivity.AsyncRequest());
+
+            activityId.ShouldNotBe(rootActivity.Id);
+
+            rootActivity.Stop();
         }
 
         public class Interceptor : IRequestInterceptor, IResponseInterceptor
@@ -345,5 +383,49 @@ namespace Appeaser.Tests
                 public void Intercept(IRequestInterceptionContext context) { }
             }
         }
+
+        public class DiagnosticActivity
+        {
+            public class Request : IRequest<string> { }
+            public class AsyncRequest : IAsyncRequest<string> { }
+
+            public class Handler :
+                IRequestHandler<Request, string>,
+                IAsyncRequestHandler<AsyncRequest, string>
+            {
+                public string Handle(Request request) => Activity.Current.Id;
+
+                public Task<string> Handle(AsyncRequest request)
+                {
+                    return Task.FromResult(Activity.Current.Id);
+                }
+            }
+
+            public class Interceptor : IRequestInterceptor, IResponseInterceptor
+            {
+                public void Intercept(IRequestInterceptionContext context)
+                {
+                    context.Set("Activity", new Activity("Child").Start());
+                }
+
+                public void Intercept(IResponseInterceptionContext context)
+                {
+                    context.Get<Activity>("Activity").Stop();
+                }
+
+                public Task InterceptAsync(IRequestInterceptionContext context)
+                {
+                    Intercept(context);
+                    return Task.CompletedTask;
+                }
+
+                public Task InterceptAsync(IResponseInterceptionContext context)
+                {
+                    Intercept(context);
+                    return Task.CompletedTask;
+                }
+            }
+        }
     }
+
 }
