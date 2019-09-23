@@ -13,6 +13,8 @@ namespace Appeaser.Microsoft.DependencyInjection
         /// <summary>
         /// Adds Appeaser IMediator, ISimpleMediator and all handlers, in provided assemblies, to service collection
         /// </summary>
+        /// <param name="services">Service collection</param>
+        /// <param name="configureSettings">Configure mediator settings</param>
         /// <param name="assemblies">Assemblies containing handlers (if none provided, the calling assembly will be added by default)</param>
         [MethodImpl(MethodImplOptions.NoInlining)]
         public static IServiceCollection AddAppeaser(this IServiceCollection services, Action<MediatorSettings> configureSettings = null, params Assembly[] assemblies)
