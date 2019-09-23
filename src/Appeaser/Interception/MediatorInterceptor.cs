@@ -55,7 +55,7 @@ namespace Appeaser.Interception
                 var result = await invocation(scope);
 
                 // Temporary fix to solve activity scoping, see https://github.com/dotnet/corefx/issues/41228
-                foreach (var interceptor in _config.ResponseInterceptors.Select(_config.Resolve).OfType<IResponseInterceptor>())
+                foreach (var interceptor in _config.ResponseInterceptors.Select(_config.Resolve).OfType<IResponseInterceptor>().Reverse())
                 {
                     await interceptor.InterceptAsync(scope.CreateResponseInterceptionContext<TResponse>(result));
                 }

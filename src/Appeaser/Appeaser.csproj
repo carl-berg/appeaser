@@ -3,7 +3,7 @@
         <TargetFrameworks>netstandard2.0;netstandard1.0;net45</TargetFrameworks>
         <Authors>Carl Berg</Authors>
         <Copyright>Copyright (c) 2017 Carl Berg</Copyright>
-        <VersionPrefix>2.3.1-rc.1</VersionPrefix>
+        <VersionPrefix>2.3.1-rc.2</VersionPrefix>
         <DisableImplicitFrameworkReferences Condition=" '$(TargetFramework)' == 'net45' ">true</DisableImplicitFrameworkReferences>
         <Description>Appeaser, the appeasing mediator</Description>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -13,6 +13,7 @@
     </PropertyGroup>
 
     <PropertyGroup>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     </PropertyGroup>

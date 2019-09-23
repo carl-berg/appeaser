@@ -3,7 +3,7 @@
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
         <Copyright>Copyright (c) 2019 Carl Berg</Copyright>
-        <VersionPrefix>0.1.0</VersionPrefix>
+        <VersionPrefix>0.2.0</VersionPrefix>
         <Authors>Carl Berg</Authors>
         <Description>Appeaser Application Insights Diagnostics for AspNetCore</Description>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -26,6 +26,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Appeaser.Diagnostics\Appeaser.Diagnostics.csproj" />
+    <ProjectReference Include="..\Appeaser.Microsoft.ApplicationInsights\Appeaser.Microsoft.ApplicationInsights.csproj" />
   </ItemGroup>
 
 </Project>
