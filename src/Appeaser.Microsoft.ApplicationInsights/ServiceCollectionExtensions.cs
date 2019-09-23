@@ -1,7 +1,8 @@
-﻿using Appeaser.Diagnostics;
+﻿using System;
+using Appeaser.Diagnostics;
 using Microsoft.ApplicationInsights.DependencyCollector;
 using Microsoft.Extensions.DependencyInjection;
-using System;
+
 
 namespace Appeaser.Microsoft.ApplicationInsights
 {
@@ -21,9 +22,9 @@ namespace Appeaser.Microsoft.ApplicationInsights
             {
                 services.Configure(configure);
             }
-            
+
             depModule.IncludeDiagnosticSourceActivities.Add(DiagonsticInterceptor.DiagnosticSourceName);
-           
+
             return services;
         }
     }

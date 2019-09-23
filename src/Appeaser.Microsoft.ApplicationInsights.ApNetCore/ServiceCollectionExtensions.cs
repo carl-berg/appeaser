@@ -1,7 +1,7 @@
-﻿using Appeaser.Diagnostics;
+﻿using System;
+using Appeaser.Diagnostics;
 using Microsoft.ApplicationInsights.DependencyCollector;
 using Microsoft.Extensions.DependencyInjection;
-using System;
 
 namespace Appeaser.Microsoft.ApplicationInsights.AspNetCore
 {
