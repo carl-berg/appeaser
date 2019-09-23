@@ -3,13 +3,13 @@
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
         <Copyright>Copyright (c) 2019 Carl Berg</Copyright>
-        <VersionPrefix>1.1.2</VersionPrefix>
+        <VersionPrefix>0.1.0</VersionPrefix>
         <Authors>Carl Berg</Authors>
-        <Description>Appeaser .NET Core DI extension</Description>
+        <Description>Appeaser Application Insights Diagnostics for AspNetCore</Description>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageProjectUrl>https://github.com/carl-berg/appeaser</PackageProjectUrl>
         <PackageIconUrl>https://raw.githubusercontent.com/carl-berg/appeaser/master/res/icon_128.png</PackageIconUrl>
-        <PackageTags>Appeaser, Microsoft.Extensions.DependencyInjection, Dependency injection, Inversion of control</PackageTags>
+        <PackageTags>Appeaser, ApplicationInsights, AspNetCore</PackageTags>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NoWarn>1591</NoWarn>
     </PropertyGroup>
@@ -20,13 +20,12 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
 
-    <ItemGroup>
-        <PackageReference Include="ATypeScanner" Version="0.1.1" />
-        <PackageReference Include="Microsoft.Extensions.Options" Version="2.2.0" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.7.1" />
+  </ItemGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\Appeaser\Appeaser.csproj" />
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Appeaser.Diagnostics\Appeaser.Diagnostics.csproj" />
+  </ItemGroup>
 
 </Project>
