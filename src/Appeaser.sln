@@ -15,6 +15,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		appeaser-pipeline.yml = appeaser-pipeline.yml
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Appeaser.Diagnostics", "Appeaser.Diagnostics\Appeaser.Diagnostics.csproj", "{7433277F-ED76-4563-964C-65D0305484E4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{4418F4D3-A5B2-49ED-AB08-9AD4FB0CE642}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4418F4D3-A5B2-49ED-AB08-9AD4FB0CE642}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4418F4D3-A5B2-49ED-AB08-9AD4FB0CE642}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7433277F-ED76-4563-964C-65D0305484E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7433277F-ED76-4563-964C-65D0305484E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7433277F-ED76-4563-964C-65D0305484E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7433277F-ED76-4563-964C-65D0305484E4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
