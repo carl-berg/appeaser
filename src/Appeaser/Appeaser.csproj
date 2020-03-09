@@ -2,21 +2,23 @@
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0;netstandard1.0;net45</TargetFrameworks>
         <Authors>Carl Berg</Authors>
-        <Copyright>Copyright (c) 2017 Carl Berg</Copyright>
-        <VersionPrefix>2.3.1-rc.2</VersionPrefix>
+        <Copyright>Copyright (c) $([System.DateTime]::Now.Year) Carl Berg</Copyright>
+        <VersionPrefix>2.3.1</VersionPrefix>
         <DisableImplicitFrameworkReferences Condition=" '$(TargetFramework)' == 'net45' ">true</DisableImplicitFrameworkReferences>
         <Description>Appeaser, the appeasing mediator</Description>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageProjectUrl>https://github.com/carl-berg/appeaser</PackageProjectUrl>
         <PackageIconUrl>https://raw.githubusercontent.com/carl-berg/appeaser/master/res/icon_128.png</PackageIconUrl>
         <PackageTags>Appeaser</PackageTags>
-    </PropertyGroup>
-
-    <PropertyGroup>
+        <PackageIcon>icon_128.png</PackageIcon>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="../../res/icon_128.png" Pack="true" Visible="false" PackagePath="/" />
+    </ItemGroup>
 
     <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.0' ">
         <PackageReference Include="System.Reflection" Version="4.3.0" />

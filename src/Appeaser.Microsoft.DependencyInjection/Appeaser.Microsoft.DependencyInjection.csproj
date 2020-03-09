@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netstandard2.0</TargetFramework>
-        <Copyright>Copyright (c) 2019 Carl Berg</Copyright>
-        <VersionPrefix>1.1.2</VersionPrefix>
+        <TargetFrameworks>netstandard2.1;netstandard2.0</TargetFrameworks>
+        <Copyright>Copyright (c) $([System.DateTime]::Now.Year) Carl Berg</Copyright>
+        <VersionPrefix>1.2.0</VersionPrefix>
         <Authors>Carl Berg</Authors>
         <Description>Appeaser .NET Core DI extension</Description>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -12,20 +12,27 @@
         <PackageTags>Appeaser, Microsoft.Extensions.DependencyInjection, Dependency injection, Inversion of control</PackageTags>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NoWarn>1591</NoWarn>
-    </PropertyGroup>
-
-    <PropertyGroup>
+        <PackageIcon>icon_128.png</PackageIcon>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="ATypeScanner" Version="0.1.1" />
+        <None Include="../../res/icon_128.png" Pack="true" Visible="false" PackagePath="/" />
+    </ItemGroup>
+    
+    <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
         <PackageReference Include="Microsoft.Extensions.Options" Version="2.2.0" />
+    </ItemGroup>
+    
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
+        <PackageReference Include="Microsoft.Extensions.Options" Version="3.1.2" />
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="ATypeScanner" Version="0.1.1" />
         <ProjectReference Include="..\Appeaser\Appeaser.csproj" />
     </ItemGroup>
 

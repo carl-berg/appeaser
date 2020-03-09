@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netstandard2.0</TargetFramework>
-        <Copyright>Copyright (c) 2019 Carl Berg</Copyright>
-        <VersionPrefix>0.2.0</VersionPrefix>
+        <TargetFrameworks>netstandard2.0</TargetFrameworks>
+        <Copyright>Copyright (c) $([System.DateTime]::Now.Year) Carl Berg</Copyright>
+        <VersionPrefix>0.3.0</VersionPrefix>
         <Authors>Carl Berg</Authors>
         <Description>Appeaser Application Insights Diagnostics for AspNetCore</Description>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -12,18 +12,20 @@
         <PackageTags>Appeaser, ApplicationInsights, AspNetCore</PackageTags>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NoWarn>1591</NoWarn>
-    </PropertyGroup>
-
-    <PropertyGroup>
+        <PackageIcon>icon_128.png</PackageIcon>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
 
-  <ItemGroup>
-      <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.7.1" />
-    <ProjectReference Include="..\Appeaser.Diagnostics\Appeaser.Diagnostics.csproj" />
-    <ProjectReference Include="..\Appeaser.Microsoft.ApplicationInsights\Appeaser.Microsoft.ApplicationInsights.csproj" />
-  </ItemGroup>
+    <ItemGroup>
+        <None Include="../../res/icon_128.png" Pack="true" Visible="false" PackagePath="/" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.7.1" />
+        <ProjectReference Include="..\Appeaser.Diagnostics\Appeaser.Diagnostics.csproj" />
+        <ProjectReference Include="..\Appeaser.Microsoft.ApplicationInsights\Appeaser.Microsoft.ApplicationInsights.csproj" />
+    </ItemGroup>
 
 </Project>

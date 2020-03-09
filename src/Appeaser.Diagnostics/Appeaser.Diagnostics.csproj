@@ -1,22 +1,24 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.0</TargetFrameworks>
+        <TargetFramework>netstandard2.0</TargetFramework>
         <Authors>Carl Berg</Authors>
-        <Copyright>Copyright (c) 2019 Carl Berg</Copyright>
+        <Copyright>Copyright (c) $([System.DateTime]::Now.Year) Carl Berg</Copyright>
         <VersionPrefix>0.1.0</VersionPrefix>
         <Description>Appeaser Diagnostic, provides a diagnostic listener on request execution</Description>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageProjectUrl>https://github.com/carl-berg/appeaser</PackageProjectUrl>
         <PackageIconUrl>https://raw.githubusercontent.com/carl-berg/appeaser/master/res/icon_128.png</PackageIconUrl>
         <PackageTags>Appeaser, Diagnostic, DiagnosticListener, DiagnosticSource</PackageTags>
-    </PropertyGroup>
-
-    <PropertyGroup>
+        <PackageIcon>icon_128.png</PackageIcon>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="../../res/icon_128.png" Pack="true" Visible="false" PackagePath="/" />
+    </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.5.1" />
