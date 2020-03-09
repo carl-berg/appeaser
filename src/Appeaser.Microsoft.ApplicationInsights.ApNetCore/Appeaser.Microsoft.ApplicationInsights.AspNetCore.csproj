@@ -3,7 +3,7 @@
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0</TargetFrameworks>
         <Copyright>Copyright (c) $([System.DateTime]::Now.Year) Carl Berg</Copyright>
-        <VersionPrefix>0.3.0</VersionPrefix>
+        <VersionPrefix>0.2.0</VersionPrefix>
         <Authors>Carl Berg</Authors>
         <Description>Appeaser Application Insights Diagnostics for AspNetCore</Description>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
