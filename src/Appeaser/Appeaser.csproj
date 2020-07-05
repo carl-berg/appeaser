@@ -8,10 +8,8 @@
         <Description>Appeaser, the appeasing mediator</Description>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageProjectUrl>https://github.com/carl-berg/appeaser</PackageProjectUrl>
-        <PackageIconUrl>https://raw.githubusercontent.com/carl-berg/appeaser/master/res/icon_128.png</PackageIconUrl>
         <PackageTags>Appeaser</PackageTags>
         <PackageIcon>icon_128.png</PackageIcon>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     </PropertyGroup>

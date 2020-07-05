@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Appeaser.Interception
 {
@@ -34,46 +31,6 @@ namespace Appeaser.Interception
 
         public void Set<T>(string key, T value) => Context.Set(key, value);
 
-        internal async Task InvokeRequestInterceptorsAsync()
-        {
-            var interceptors = ResolveInterceptors<IRequestInterceptor>(x => x.RequestInterceptors);
-            foreach (var interceptor in interceptors)
-            {
-                await interceptor.InterceptAsync(this).ConfigureAwait(false);
-            }
-        }
-
-        internal void InvokeRequestInterceptors()
-        {
-            var interceptors = ResolveInterceptors<IRequestInterceptor>(x => x.RequestInterceptors);
-            foreach (var interceptor in interceptors)
-            {
-                interceptor.Intercept(this);
-            }
-        }
-
-        internal void InvokeResponseInterceptors(ResponseInterceptionContext context)
-        {
-            var interceptors = ResolveInterceptors<IResponseInterceptor>(x => x.ResponseInterceptors.Reverse());
-            foreach (var interceptor in interceptors)
-            {
-                interceptor.Intercept(context);
-            }
-        }
-
-        internal async Task InvokeResponseInterceptorsAsync(ResponseInterceptionContext context)
-        {
-            var interceptors = ResolveInterceptors<IResponseInterceptor>(x => x.ResponseInterceptors.Reverse());
-            foreach (var interceptor in interceptors)
-            {
-                await interceptor.InterceptAsync(context);
-            }
-        }
-
-        internal IEnumerable<T> ResolveInterceptors<T>(Func<MediatorInterceptionParameters, IEnumerable<Type>> typedefinitions)
-        {
-            return typedefinitions(_config).Select(type => _config.Resolve(type)).OfType<T>().ToList();
-        }
 
         internal ResponseInterceptionContext CreateResponseInterceptionContext<TResponse>(object result)
         {

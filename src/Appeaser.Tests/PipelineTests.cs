@@ -166,6 +166,46 @@ namespace Appeaser.Tests
             rootActivity.Stop();
         }
 
+        [Fact]
+        public void Test_RequestInterception_Resolution_Fails()
+        {
+            A.CallTo(() => _handler.GetHandler(A<Type>.That.IsEqualTo(typeof(RequestInterceptor)))).Returns(null);
+            var settings = new MediatorSettings{ WrapExceptions = false }.AddRequestInterceptor<RequestInterceptor>();
+            var mediator = new Mediator(_handler, settings);
+
+            Assert.Throws<MediatorInterceptionResolutionException>(() => mediator.Send(new CommandFeature.Command()));
+        }
+
+        [Fact]
+        public void Test_ResponseInterception_Resolution_Fails()
+        {
+            A.CallTo(() => _handler.GetHandler(A<Type>.That.IsEqualTo(typeof(ResponseInterceptor)))).Returns(null);
+            var settings = new MediatorSettings { WrapExceptions = false }.AddResponseInterceptor<ResponseInterceptor>();
+            var mediator = new Mediator(_handler, settings);
+
+            Assert.Throws<MediatorInterceptionResolutionException>(() => mediator.Send(new CommandFeature.Command()));
+        }
+
+        [Fact]
+        public void Test_Async_RequestInterception_Resolution_Fails()
+        {
+            A.CallTo(() => _handler.GetHandler(A<Type>.That.IsEqualTo(typeof(RequestInterceptor)))).Returns(null);
+            var settings = new MediatorSettings { WrapExceptions = false }.AddRequestInterceptor<RequestInterceptor>();
+            var mediator = new Mediator(_handler, settings);
+
+            Assert.ThrowsAsync<MediatorInterceptionResolutionException>(() => mediator.Send(new CommandFeature.AsyncCommand()));
+        }
+
+        [Fact]
+        public void Test_Async_ResponseInterception_Resolution_Fails()
+        {
+            A.CallTo(() => _handler.GetHandler(A<Type>.That.IsEqualTo(typeof(ResponseInterceptor)))).Returns(null);
+            var settings = new MediatorSettings { WrapExceptions = false }.AddResponseInterceptor<ResponseInterceptor>();
+            var mediator = new Mediator(_handler, settings);
+
+            Assert.ThrowsAsync<MediatorInterceptionResolutionException>(() => mediator.Send(new CommandFeature.AsyncCommand()));
+        }
+
         public class Interceptor : IRequestInterceptor, IResponseInterceptor
         {
             public bool RequestWasIntercepted { get; set; }
@@ -296,7 +336,14 @@ namespace Appeaser.Tests
                 public bool TriggerException { get; set; }
             }
 
-            public class Handler : ICommandHandler<Command, Response>
+            public class AsyncCommand : IAsyncCommand<Response>
+            {
+                public bool TriggerException { get; set; }
+            }
+
+            public class Handler : 
+                ICommandHandler<Command, Response>,
+                IAsyncCommandHandler<AsyncCommand, Response>
             {
                 public Response Handle(Command command)
                 {
@@ -306,6 +353,16 @@ namespace Appeaser.Tests
                     }
 
                     return new Response();
+                }
+
+                public Task<Response> Handle(AsyncCommand command)
+                {
+                    if (command.TriggerException)
+                    {
+                        throw new ArgumentException();
+                    }
+
+                    return Task.FromResult(new Response());
                 }
             }
 
@@ -426,6 +483,7 @@ namespace Appeaser.Tests
                 }
             }
         }
+
     }
 
 }

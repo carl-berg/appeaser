@@ -8,12 +8,10 @@
         <Description>Appeaser Diagnostic, provides a diagnostic listener on request execution</Description>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageProjectUrl>https://github.com/carl-berg/appeaser</PackageProjectUrl>
-        <PackageIconUrl>https://raw.githubusercontent.com/carl-berg/appeaser/master/res/icon_128.png</PackageIconUrl>
         <PackageTags>Appeaser, Diagnostic, DiagnosticListener, DiagnosticSource</PackageTags>
         <PackageIcon>icon_128.png</PackageIcon>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
 
     <ItemGroup>
