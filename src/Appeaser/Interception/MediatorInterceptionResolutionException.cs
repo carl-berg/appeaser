@@ -2,7 +2,7 @@
 
 namespace Appeaser.Interception
 {
-    internal class MediatorInterceptionResolutionException : Exception
+    public class MediatorInterceptionResolutionException : Exception
     {
         public MediatorInterceptionResolutionException(Type type)
             : base($"Mediator Interceptor of type {type} could not be resolved. Make sure mediator handler factory or mediator resolver can resolve this type")
