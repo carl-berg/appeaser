@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -19,24 +20,29 @@ namespace Appeaser.Interception
             var scope = new MediatorInterceptionScope(_config, handler, parameter);
             try
             {
-                scope.InvokeRequestInterceptors();
+                foreach (var interceptor in ResolveInterceptors<IRequestInterceptor>(x => x.RequestInterceptors))
+                {
+                    interceptor.Intercept(scope);
+                }
+
                 var result = invocation(scope);
-                scope.InvokeResponseInterceptors(scope.CreateResponseInterceptionContext<TResponse>(result));
+
+                foreach (var interceptor in ResolveInterceptors<IResponseInterceptor>(x => x.ResponseInterceptors).Reverse())
+                {
+                    interceptor.Intercept(scope.CreateResponseInterceptionContext<TResponse>(result));
+                }
+
                 return result;
             }
             catch (Exception ex)
             {
-                if (ex is TargetInvocationException)
+                var exception = ex is TargetInvocationException ? ex.InnerException : ex;
+                foreach (var interceptor in ResolveInterceptors<IResponseInterceptor>(x => x.ResponseInterceptors).Reverse())
                 {
-                    scope.InvokeResponseInterceptors(scope.CreateExceptionInterceptionContext<TResponse>(ex.InnerException));
-                    throw ex.InnerException;
-                }
-                else
-                {
-                    scope.InvokeResponseInterceptors(scope.CreateExceptionInterceptionContext<TResponse>(ex));
+                    interceptor.Intercept(scope.CreateExceptionInterceptionContext<TResponse>(exception));
                 }
 
-                throw;
+                throw exception;
             }
         }
 
@@ -45,37 +51,47 @@ namespace Appeaser.Interception
             var scope = new MediatorInterceptionScope(_config, handler, parameter);
             try
             {
-                // Temporary fix to solve activity scoping, see https://github.com/dotnet/corefx/issues/41228
-                foreach (var interceptor in _config.RequestInterceptors.Select(_config.Resolve).OfType<IRequestInterceptor>())
+                foreach (var interceptor in ResolveInterceptors<IRequestInterceptor>(x => x.RequestInterceptors))
                 {
                     await interceptor.InterceptAsync(scope);
                 }
-                //await scope.InvokeRequestInterceptorsAsync();
 
                 var result = await invocation(scope);
 
-                // Temporary fix to solve activity scoping, see https://github.com/dotnet/corefx/issues/41228
-                foreach (var interceptor in _config.ResponseInterceptors.Select(_config.Resolve).OfType<IResponseInterceptor>().Reverse())
+                foreach (var interceptor in ResolveInterceptors<IRequestInterceptor>(x => x.ResponseInterceptors).Reverse())
                 {
                     await interceptor.InterceptAsync(scope.CreateResponseInterceptionContext<TResponse>(result));
                 }
-                //await scope.InvokeResponseInterceptorsAsync(scope.CreateResponseInterceptionContext<TResponse>(result));
 
                 return result;
             }
             catch (Exception ex)
             {
-                if (ex is TargetInvocationException)
+                var exception = ex is TargetInvocationException ? ex.InnerException : ex;
+                foreach (var interceptor in ResolveInterceptors<IRequestInterceptor>(x => x.ResponseInterceptors).Reverse())
                 {
-                    await scope.InvokeResponseInterceptorsAsync(scope.CreateExceptionInterceptionContext<TResponse>(ex.InnerException));
-                    throw ex.InnerException;
-                }
-                else
-                {
-                    await scope.InvokeResponseInterceptorsAsync(scope.CreateExceptionInterceptionContext<TResponse>(ex));
+                    await interceptor.InterceptAsync(scope.CreateExceptionInterceptionContext<TResponse>(exception));
                 }
 
-                throw;
+                throw exception;
+            }
+        }
+
+        private IEnumerable<T> ResolveInterceptors<T>(Func<MediatorInterceptionParameters, IEnumerable<Type>> typedefinitions)
+        {
+            foreach (var interceptorType in typedefinitions(_config))
+            {
+                if (interceptorType.GetTypeInfo().ImplementedInterfaces.Contains(typeof(T)))
+                {
+                    if (_config.Resolve(interceptorType) is T interceptor)
+                    {
+                        yield return interceptor;
+                    }
+                    else
+                    {
+                        throw new MediatorInterceptionResolutionException(interceptorType);
+                    }
+                }
             }
         }
     }
