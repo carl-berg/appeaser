@@ -50,6 +50,14 @@ namespace Appeaser.Tests
         }
 
         [Fact]
+        public void Test_Query_Exception_Preserves_Stacktrace()
+        {
+            var mediator = new Mediator(_handlerFactory, new TestMediatorSettings { WrapExceptions = false });
+            var exception = Assert.Throws<Exception>(() => mediator.Request(new TestFeature.Query()));
+            Assert.Equal(typeof(TestFeature.Handler), exception.TargetSite.DeclaringType);
+        }
+
+        [Fact]
         public void Test_Command_Exception_Wrapping_Can_Be_Disabled()
         {
             var mediator = new Mediator(_handlerFactory, new TestMediatorSettings { WrapExceptions = false });

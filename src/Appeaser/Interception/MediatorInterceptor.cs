@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 
 namespace Appeaser.Interception
@@ -42,7 +43,8 @@ namespace Appeaser.Interception
                     interceptor.Intercept(scope.CreateExceptionInterceptionContext<TResponse>(exception));
                 }
 
-                throw exception;
+                ExceptionDispatchInfo.Capture(exception).Throw();
+                throw new Exception("Should never happen, hopefully? :-)");
             }
         }
 
@@ -73,7 +75,8 @@ namespace Appeaser.Interception
                     await interceptor.InterceptAsync(scope.CreateExceptionInterceptionContext<TResponse>(exception));
                 }
 
-                throw exception;
+                ExceptionDispatchInfo.Capture(exception).Throw();
+                throw new Exception("Should never happen, hopefully? :-)");
             }
         }
 
