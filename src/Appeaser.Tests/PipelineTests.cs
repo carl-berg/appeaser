@@ -19,6 +19,8 @@ namespace Appeaser.Tests
             _handler = A.Fake<IMediatorHandlerFactory>();
             A.CallTo(() => _handler.GetHandler(A<Type>.That.IsEqualTo(typeof(ICommandHandler<CommandFeature.Command, CommandFeature.Response>))))
                 .Returns(new CommandFeature.Handler());
+            A.CallTo(() => _handler.GetHandler(A<Type>.That.IsEqualTo(typeof(IAsyncCommandHandler<CommandFeature.AsyncCommand, CommandFeature.Response>))))
+                .Returns(new CommandFeature.Handler());
             A.CallTo(() => _handler.GetHandler(A<Type>.That.IsEqualTo(typeof(IAsyncCommandHandler<Async.Command, UnitType>))))
                 .Returns(new Async.Handler());
             A.CallTo(() => _handler.GetHandler(A<Type>.That.IsEqualTo(typeof(IAsyncRequestHandler<DiagnosticActivity.AsyncRequest, string>))))
