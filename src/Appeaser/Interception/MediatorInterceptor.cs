@@ -60,7 +60,7 @@ namespace Appeaser.Interception
 
                 var result = await invocation(scope);
 
-                foreach (var interceptor in ResolveInterceptors<IRequestInterceptor>(x => x.ResponseInterceptors).Reverse())
+                foreach (var interceptor in ResolveInterceptors<IResponseInterceptor>(x => x.ResponseInterceptors).Reverse())
                 {
                     await interceptor.InterceptAsync(scope.CreateResponseInterceptionContext<TResponse>(result));
                 }
@@ -70,7 +70,7 @@ namespace Appeaser.Interception
             catch (Exception ex)
             {
                 var exception = ex is TargetInvocationException ? ex.InnerException : ex;
-                foreach (var interceptor in ResolveInterceptors<IRequestInterceptor>(x => x.ResponseInterceptors).Reverse())
+                foreach (var interceptor in ResolveInterceptors<IResponseInterceptor>(x => x.ResponseInterceptors).Reverse())
                 {
                     await interceptor.InterceptAsync(scope.CreateExceptionInterceptionContext<TResponse>(exception));
                 }
