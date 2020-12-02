@@ -73,14 +73,14 @@ namespace Appeaser.Tests
         }
 
         [Fact]
-        public void TestInterceptionAsync()
+        public async Task TestInterceptionAsync()
         {
             var interceptor = new Interceptor();
             var settings = new MediatorSettings().AddInterceptor<Interceptor>();
             A.CallTo(() => _handler.GetHandler(A<Type>.That.IsEqualTo(typeof(Interceptor)))).Returns(interceptor);
             var mediator = new Mediator(_handler, settings);
 
-            mediator.Send(new CommandFeature.AsyncCommand());
+            await mediator.Send(new CommandFeature.AsyncCommand());
 
             Assert.True(interceptor.RequestWasIntercepted);
             Assert.True(interceptor.ResponseWasIntercepted);
