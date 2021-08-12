@@ -4,7 +4,7 @@
         <TargetFramework>netstandard2.0</TargetFramework>
         <Authors>Carl Berg</Authors>
         <Copyright>Copyright (c) $([System.DateTime]::Now.Year) Carl Berg</Copyright>
-        <VersionPrefix>0.1.0</VersionPrefix>
+        <VersionPrefix>0.2.0</VersionPrefix>
         <Description>Appeaser Diagnostic, provides a diagnostic listener on request execution</Description>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageProjectUrl>https://github.com/carl-berg/appeaser</PackageProjectUrl>
@@ -19,7 +19,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.5.1" />
+        <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="5.0.1" />
         <ProjectReference Include="..\Appeaser\Appeaser.csproj" />
     </ItemGroup>
 

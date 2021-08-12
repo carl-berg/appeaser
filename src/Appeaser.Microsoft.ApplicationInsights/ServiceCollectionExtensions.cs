@@ -2,7 +2,7 @@
 using Appeaser.Diagnostics;
 using Microsoft.ApplicationInsights.DependencyCollector;
 using Microsoft.Extensions.DependencyInjection;
-
+using Microsoft.Extensions.Options;
 
 namespace Appeaser.Microsoft.ApplicationInsights
 {
@@ -14,6 +14,8 @@ namespace Appeaser.Microsoft.ApplicationInsights
         /// </summary>
         public static IServiceCollection ConfigureApplicationInsightsDiagnosticsForAppeaser(this IServiceCollection services, DependencyTrackingTelemetryModule depModule, Action<AppeaserApplicationInsightsConfiguration> configure = null)
         {
+            services.AddTransient(sp => new DiagonsticInterceptor(sp.GetRequiredService<IOptions<AppeaserApplicationInsightsConfiguration>>().Value.UseFullRequestTypeNameAsActivityName));
+            services.AddTransient<ExceptionInterceptor>();
             services.Configure<MediatorSettings>(cfg => cfg.AddInterceptor<DiagonsticInterceptor>());
             services.Configure<MediatorSettings>(cfg => cfg.AddResponseInterceptor<ExceptionInterceptor>());
 

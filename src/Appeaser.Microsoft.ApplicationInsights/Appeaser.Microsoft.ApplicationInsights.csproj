@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.1;netstandard2.0</TargetFrameworks>
+        <TargetFrameworks>netstandard2.1;netstandard2.0;net5.0</TargetFrameworks>
         <Copyright>Copyright (c) $([System.DateTime]::Now.Year) Carl Berg</Copyright>
-        <Version>0.3.0</Version>
+        <Version>0.4.1</Version>
         <Authors>Carl Berg</Authors>
         <Description>Appeaser Application Insights Diagnostics</Description>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -26,6 +26,10 @@
 
     <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
         <PackageReference Include="Microsoft.Extensions.Options" Version="3.1.2" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
+        <PackageReference Include="Microsoft.Extensions.Options" Version="5.0.0" />
     </ItemGroup>
 
     <ItemGroup>
