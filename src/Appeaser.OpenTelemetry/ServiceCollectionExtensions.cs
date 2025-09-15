@@ -5,6 +5,7 @@ namespace Microsoft.Extensions.DependencyInjection;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddAppeaserOpenTelemetry(this IServiceCollection services) 
-        => services.Configure<MediatorSettings>(cfg => cfg.AddInterceptor<OpenTelemetryInterceptor>());
+    public static IServiceCollection AddAppeaserOpenTelemetry(this IServiceCollection services) => services
+        .AddSingleton<OpenTelemetryInterceptor>()
+        .Configure<MediatorSettings>(cfg => cfg.AddInterceptor<OpenTelemetryInterceptor>());
 }

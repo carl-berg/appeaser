@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
     <Copyright>Copyright (c) $([System.DateTime]::Now.Year) Carl Berg</Copyright>
-    <Version>0.1.1</Version>
+    <Version>0.1.2</Version>
     <Authors>Carl Berg</Authors>
     <Description>Appeaser OpenTelemetry</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
