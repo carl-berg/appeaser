@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.28803.352
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36429.23 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Appeaser", "Appeaser\Appeaser.csproj", "{7DF6E70B-E97E-4253-B265-863A112207EA}"
 EndProject
@@ -20,6 +20,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Appeaser.Microsoft.ApplicationInsights.AspNetCore", "Appeaser.Microsoft.ApplicationInsights.ApNetCore\Appeaser.Microsoft.ApplicationInsights.AspNetCore.csproj", "{7003A4BB-D84E-4147-AA6E-2FEFA7DA04A1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Appeaser.Microsoft.ApplicationInsights", "Appeaser.Microsoft.ApplicationInsights\Appeaser.Microsoft.ApplicationInsights.csproj", "{27D5765A-6B43-4E50-904D-43C1D598F955}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Appeaser.OpenTelemetry", "Appeaser.OpenTelemetry\Appeaser.OpenTelemetry.csproj", "{0DB5AD37-AD70-403C-AF38-F6AE7941200D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +53,10 @@ Global
 		{27D5765A-6B43-4E50-904D-43C1D598F955}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{27D5765A-6B43-4E50-904D-43C1D598F955}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{27D5765A-6B43-4E50-904D-43C1D598F955}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0DB5AD37-AD70-403C-AF38-F6AE7941200D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0DB5AD37-AD70-403C-AF38-F6AE7941200D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0DB5AD37-AD70-403C-AF38-F6AE7941200D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0DB5AD37-AD70-403C-AF38-F6AE7941200D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
