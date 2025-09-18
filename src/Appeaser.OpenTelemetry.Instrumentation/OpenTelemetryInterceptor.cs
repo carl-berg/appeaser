@@ -3,7 +3,7 @@ using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
-namespace Appeaser.OpenTelemetry;
+namespace Appeaser.OpenTelemetry.Instrumentation;
 
 public class OpenTelemetryInterceptor : IRequestInterceptor, IResponseInterceptor
 {
