@@ -6,10 +6,14 @@ namespace OpenTelemetry.Trace;
 
 public static class ServiceCollectionExtensions
 {
-    public static TracerProviderBuilder AddAppeaserInstrumentation(this TracerProviderBuilder builder) => builder.ConfigureServices(services =>
+    public static TracerProviderBuilder AddAppeaserInstrumentation(this TracerProviderBuilder builder)
     {
-        services.AddSingleton<OpenTelemetryInterceptor>();
-        services.Configure<MediatorSettings>(cfg => cfg.AddInterceptor<OpenTelemetryInterceptor>());
-        builder.AddSource(OpenTelemetryInterceptor.ActivitySourceName);
-    });
+        builder.ConfigureServices(services =>
+        {
+            services.AddSingleton<OpenTelemetryInterceptor>();
+            services.Configure<MediatorSettings>(cfg => cfg.AddInterceptor<OpenTelemetryInterceptor>());
+        });
+
+        return builder.AddSource(OpenTelemetryInterceptor.ActivitySourceName);
+    }
 }

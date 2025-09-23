@@ -17,6 +17,7 @@ public class OpenTelemetryInterceptor : IRequestInterceptor, IResponseIntercepto
         {
             activity.AddTag("appeaser.request.type", context.RequestType.FullName);
             activity.AddTag("appeaser.handler.type", context.HandlerType.FullName);
+            activity.SetCustomProperty("appeaser.request", context.Request);
             context.Set("Activity", activity);
         }
     }
@@ -42,11 +43,13 @@ public class OpenTelemetryInterceptor : IRequestInterceptor, IResponseIntercepto
 #endif
 
                 activity.AddTag("appeaser.success", bool.FalseString);
+                activity.SetCustomProperty("appeaser.exception", context.Exception);
                 activity.SetStatus(ActivityStatusCode.Error, context.Exception.Message);
             }
             else
             {
                 activity.AddTag("appeaser.success", bool.TrueString);
+                activity.SetCustomProperty("appeaser.response", context.Response);
                 activity.SetStatus(ActivityStatusCode.Ok);
             }
 

@@ -3,12 +3,12 @@
   <PropertyGroup>
     <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
     <Copyright>Copyright (c) $([System.DateTime]::Now.Year) Carl Berg</Copyright>
-    <Version>0.1.0</Version>
+    <Version>0.1.1</Version>
     <Authors>Carl Berg</Authors>
     <Description>Appeaser OpenTelemetry Instrumentation</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/carl-berg/appeaser</PackageProjectUrl>
-    <PackageTags>Appeaser, OpenTelemetry</PackageTags>
+    <PackageTags>Appeaser, OpenTelemetry, Instrumentation</PackageTags>
     <PackageIcon>icon_128.png</PackageIcon>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
